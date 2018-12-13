@@ -11,12 +11,12 @@ try:
     controller.reset('all-lights-on')
     controller.waitControllerReady()
 
-    color = [0x0, 0x0, 0x0]
+    color = [0x0, 0x0, 0x5]
 
     cmds = [
-        controller.cmdPacket.make_cmd_set_colour(1, 0x0080, color),
-        controller.cmdPacket.make_cmd_loop_block_end(),
-        controller.cmdPacket.make_cmd_transmit_execute(),
+        controller.cmdPacket.makeCmdSetColour(1, 0x0021, color),
+        controller.cmdPacket.makeCmdLoopBlockEnd(),
+        controller.cmdPacket.makeCmdTransmitExecute(),
     ]
     # send commands
     controller.sendCommands(cmds)

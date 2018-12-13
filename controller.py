@@ -155,7 +155,7 @@ class AlienwareController:
 
     def ping(self):
         """ Send a get-status command to the controller."""
-        pkt = self.cmdPacket.make_cmd_get_status()
+        pkt = self.cmdPacket.makeCmdGetStatus()
         logging.debug("SENDING: {}".format(self.pktToString(pkt)))
         self.driver.write_packet(pkt)
         if self.driver.read_packet() == self.cmdPacket.STATUS_READY:
@@ -166,7 +166,7 @@ class AlienwareController:
     def reset(self, reset_type):
         """ Send a "reset" packet to the AlienFX controller."""
         reset_code = self.getResetCode(reset_type)
-        pkt = self.cmdPacket.make_cmd_reset(reset_code)
+        pkt = self.cmdPacket.makeCmdReset(reset_code)
         logging.debug("SENDING: {}".format(self.pktToString(pkt)))
         self.driver.write_packet(pkt)
         logging.debug('Reset done')
@@ -178,7 +178,7 @@ class AlienwareController:
         ready = False
         errcount = 0
         while not ready:
-            pkt = self.cmdPacket.make_cmd_get_status()
+            pkt = self.cmdPacket.makeCmdGetStatus()
             logging.debug("SENDING: {}".format(self.pktToString(pkt)))
             self.driver.write_packet(pkt)
             try:
@@ -196,7 +196,7 @@ class AlienwareController:
         """ Return a human readable string representation of an AlienFX
         command packet.
         """
-        return self.cmdPacket.pkt_to_string(pkt_bytes, self)
+        return self.cmdPacket.pktToString(pkt_bytes, self)
 
     def getNoZoneCode(self):
         """ Return a zone code corresponding to all non-visible zones."""
@@ -234,19 +234,19 @@ class AlienwareController:
                     logging.warning("fixed must have exactly one colour value")
                     continue
                 loop_cmds.append(
-                    pkt.make_cmd_set_colour(block, zones, item_colours[0]))
+                    pkt.makeCmdSetColour(block, zones, item_colours[0]))
             elif item_type == AlienwareThemeFile.KW_ACTION_TYPE_BLINK:
                 if len(item_colours) != 1:
                     logging.warning("blink must have exactly one colour value")
                     continue
                 loop_cmds.append(
-                    pkt.make_cmd_set_blink_colour(block, zones, item_colours[0]))
+                    pkt.makeCmdSetBlinkColour(block, zones, item_colours[0]))
             elif item_type == AlienwareThemeFile.KW_ACTION_TYPE_MORPH:
                 if len(item_colours) != 2:
                     logging.warning("morph must have exactly two colour values")
                     continue
                 loop_cmds.append(
-                    pkt.make_cmd_set_morph_colour(
+                    pkt.makeCmdSetMorphColour(
                         block, zones, item_colours[0], item_colours[1]))
             else:
                 logging.warning("unknown loop item type: {}".format(item_type))
@@ -273,19 +273,19 @@ class AlienwareController:
                 block += 1
                 for loop_cmd in loop_cmds:
                     if not boot:
-                        zone_cmds.append(pkt.make_cmd_save_next(state))
+                        zone_cmds.append(pkt.makeCmdSaveNext(state))
                     zone_cmds.append(loop_cmd)
                 if not boot:
-                    zone_cmds.append(pkt.make_cmd_save_next(state))
-                zone_cmds.append(pkt.make_cmd_loop_block_end())
+                    zone_cmds.append(pkt.makeCmdSaveNext(state))
+                zone_cmds.append(pkt.makeCmdLoopBlockEnd())
         if zone_cmds:
             if not boot:
-                zone_cmds.append(pkt.make_cmd_save())
+                zone_cmds.append(pkt.makeCmdSave())
         if boot:
             zone_cmds.append(
-                pkt.make_cmd_set_colour(
+                pkt.makeCmdSetColour(
                     block, self.getNoZoneCode(), (0, 0, 0)))
-            zone_cmds.append(pkt.make_cmd_loop_block_end())
+            zone_cmds.append(pkt.makeCmdLoopBlockEnd())
         return zone_cmds
 
     def sendCommands(self, cmds):
@@ -315,10 +315,10 @@ class AlienwareController:
                     bootCommands = self.makeZoneCommands(themefile, state_name, boot=True)
                 self.sendCommands(commands)
 
-            self.sendCommands([self.cmdPacket.make_cmd_set_speed(themefile.get_speed())])
+            self.sendCommands([self.cmdPacket.makeCmdSetSpeed(themefile.get_speed())])
             # send the boot block commands again
             self.sendCommands(bootCommands)
-            cmd = self.cmdPacket.make_cmd_transmit_execute()
+            cmd = self.cmdPacket.makeCmdTransmitExecute()
             self.sendCommands([cmd])
         finally:
             self.driver.release()
