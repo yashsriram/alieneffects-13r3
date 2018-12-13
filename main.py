@@ -7,14 +7,15 @@ try:
     # Make controller ready
     controller.driver.acquire()
 
-    controller.ping()
-    controller.reset('all-lights-on')
-    controller.waitControllerReady()
+    # controller.getStatus()
+    controller.reset('all-lights-off')
+    controller.waitUntilControllerReady()
 
-    color = [0, 255, 255]
+    color1 = [0, 0, 255]
+    color2 = [0, 0, 0]
 
     cmds = [
-        controller.cmdPacket.makeCmdSetColour(1, 0x0021, color),
+        controller.cmdPacket.makeCmdSetColour(1, 0x0080, color1),
         controller.cmdPacket.makeCmdLoopBlockEnd(),
         controller.cmdPacket.makeCmdTransmitExecute(),
     ]

@@ -78,7 +78,7 @@ Commands
 
 ### 0x01: Morph ###
 
-    02:01:nn:00:zz:zz:rg:bR:GB
+    2 1 S 0 Z Z r g b R G B
 
     n : Sequence ID
     z : Zone

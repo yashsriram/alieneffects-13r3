@@ -6,10 +6,6 @@ from functools import reduce
 
 
 class AlienwareController:
-    """
-    Provides facilities to communicate with an AlienFX controller.
-    This class provides methods to send commands to an AlienFX controller, and receive status from the controller.
-    """
 
     # Speed capabilities. The higher the number, the slower the speed of
     # blink/morph actions. The min speed is selected by trial and error as
@@ -22,46 +18,29 @@ class AlienwareController:
     MIDDLE_LEFT_KEYBOARD = 0x0004
     MIDDLE_RIGHT_KEYBOARD = 0x0002
     RIGHT_KEYBOARD = 0x0001
-    # External 'Alien Head'
+
     ALIEN_HEAD = 0x0020
-    # 'Alienware' below screen
     LOGO = 0x0040
-    # Windows the next 3 as a single 'Zone 8'
-    HDD_LED = 0x0200
-    WIFI_LED = 0x0400
-    CAPS_LED = 0x0080
     TOUCH_PAD = 0x0080
     POWER_BUTTON = 0x0100
+
+    # HDD_LED = 0x0200
+    # WIFI_LED = 0x0400
+    # CAPS_LED = 0x0080
 
     # Reset codes
     RESET_ALL_LIGHTS_OFF = 3
     RESET_ALL_LIGHTS_ON = 4
-
-    # State codes
-    BOOT = 1
-    AC_SLEEP = 2
-    AC_CHARGED = 5
-    AC_CHARGING = 6
-    BATTERY_SLEEP = 7
-    BATTERY_ON = 8
-    BATTERY_CRITICAL = 9
 
     # Zone names
     ZONE_LEFT_KEYBOARD = "Left Keyboard"
     ZONE_MIDDLE_LEFT_KEYBOARD = "Middle-left Keyboard"
     ZONE_MIDDLE_RIGHT_KEYBOARD = "Middle-right Keyboard"
     ZONE_RIGHT_KEYBOARD = "Right Keyboard"
-    ZONE_RIGHT_SPEAKER = "Right Speaker"
-    ZONE_LEFT_SPEAKER = "Left Speaker"
     ZONE_ALIEN_HEAD = "Alien Head"
     ZONE_LOGO = "Logo"
     ZONE_TOUCH_PAD = "Touchpad"
-    ZONE_MEDIA_BAR = "Media Bar"
-    ZONE_STATUS_LEDS = "Status LEDs"
     ZONE_POWER_BUTTON = "Power Button"
-    ZONE_HDD_LEDS = "HDD LEDs"
-    ZONE_RIGHT_DISPLAY = "Right Display"  # LED-bar display right side, as built in the AW17R4
-    ZONE_LEFT_DISPLAY = "Left Display"  # LED-bar display left side, as built in the AW17R4
 
     # State names
     STATE_BOOT = "Boot"
@@ -72,7 +51,14 @@ class AlienwareController:
     STATE_BATTERY_ON = "Battery On"
     STATE_BATTERY_CRITICAL = "Battery Critical"
 
-    ALIENFX_CONTROLLER_TYPE = "old"  # Default controllertype=old. Note that modern controllers are using 8 bits per color. older ones just 4
+    # State codes
+    BOOT = 1
+    AC_SLEEP = 2
+    AC_CHARGED = 5
+    AC_CHARGING = 6
+    BATTERY_SLEEP = 7
+    BATTERY_ON = 8
+    BATTERY_CRITICAL = 9
 
     def __init__(self):
         self.name = "Alienware m13xR3"
@@ -119,55 +105,45 @@ class AlienwareController:
 
         self.driver = AlienwareUSBDriver(self.vendorId, self.productId, self.cmdPacket.PACKET_LENGTH)
 
-    def ping(self):
-        """ Send a get-status command to the controller."""
+    def getStatus(self):
         pkt = self.cmdPacket.makeCmdGetStatus()
-        logging.debug("SENDING: {}".format(self.pktToString(pkt)))
+        logging.debug("writing command: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
-        if self.driver.readPacket() == self.cmdPacket.STATUS_READY:
-            logging.debug('Pinged. Status READY')
+        response = self.driver.readPacket()
+        isReady = response[0] == self.cmdPacket.STATUS_READY
+        if isReady:
+            logging.debug('Pinged, STATUS_READY')
         else:
-            logging.debug('Pinged. Status NOT READY')
+            logging.debug('Pinged, STATUS_BUSY')
+        return isReady
 
     def reset(self, reset_type):
-        """ Send a "reset" packet to the AlienFX controller."""
         reset_code = self.getResetCode(reset_type)
         pkt = self.cmdPacket.makeCmdReset(reset_code)
-        logging.debug("SENDING: {}".format(self.pktToString(pkt)))
+        logging.debug("writing command: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
-        logging.debug('Reset done')
 
-    def waitControllerReady(self):
-        """ Keep sending a "get status" packet to the AlienFX controller and
-        return only when the controller is ready
-        """
-        ready = False
-        errcount = 0
-        while not ready:
-            pkt = self.cmdPacket.makeCmdGetStatus()
-            logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-            self.driver.writePacket(pkt)
+    def waitUntilControllerReady(self):
+        isReady = False
+        errCount = 0
+        while not isReady:
             try:
-                resp = self.driver.readPacket()
-                ready = (resp[0] == self.cmdPacket.STATUS_READY)
+                isReady = self.getStatus()
             except TypeError:
-                errcount += 1
-                logging.debug("No Status received yet... Failed tries=" + str(errcount))
-            if errcount > 50:
+                errCount += 1
+                logging.debug("No Status received yet... Num failed tries={}".format(errCount))
+
+            if errCount > 50:
                 logging.error("Controller status could not be retrieved. Is the device already in use?")
                 exit(-1)
         logging.debug('Controller Ready')
 
     def sendCommands(self, cmds):
-        """ Send the given commands to the controller. """
         for cmd in cmds:
-            logging.debug("SENDING: {}".format(self.pktToString(cmd)))
+            logging.debug("writing command: {}".format(self.pktToString(cmd)))
             self.driver.writePacket(cmd)
 
     def pktToString(self, pkt_bytes):
-        """ Return a human readable string representation of an AlienFX
-        command packet.
-        """
         return self.cmdPacket.pktToString(pkt_bytes, self)
 
     def getZoneName(self, pkt):

@@ -44,12 +44,7 @@ class AlienwareCmdPacket(object):
         }
 
     def pktToString(self, pkt_bytes, controller):
-        """ Return a human readable string representation of a command packet.
-        """
-        # if len(pkt_bytes) != self.PACKET_LENGTH:
-        #     print(len(pkt_bytes), self.PACKET_LENGTH)
-        #     print("BAD PACKET: {}".format(pkt_bytes))
-
+        """ Return a human readable string representation of a command packet"""
         try:
             cmd = pkt_bytes[1]
             args = {"pkt": pkt_bytes, "controller": controller}
@@ -194,28 +189,15 @@ class AlienwareCmdPacket(object):
 
     @staticmethod
     def validateColourPair(colour1, colour2):
-        """ Pack two colours into a list of bytes and return the list. Each
-        colour is a 3-member tuple
-        """
+        for band in colour1:
+            if not (isinstance(band, int) and 0 <= band <= 255):
+                raise RuntimeError
+        for band in colour2:
+            if not (isinstance(band, int) and 0 <= band <= 255):
+                raise RuntimeError
         (red1, green1, blue1) = colour1
         (red2, green2, blue2) = colour2
-        # pkt = []
-        # pkt.append(((red1&0xf)<<4) + (green1&0xf))
-        # pkt.append(((blue1&0xf)<<4) + (red2&0xf))
-        # pkt.append(((green2&0xf)<<4) + (blue2&0xf))
-        pkt = []
-        red8_1 = red1 / float(15) * 255
-        green8_1 = green1 / float(15) * 255
-        blue8_1 = blue1 / float(15) * 255
-        red8_2 = red2 / float(15) * 255
-        green8_2 = green2 / float(15) * 255
-        blue8_2 = blue2 / float(15) * 255
-        pkt.append(int(red8_1))
-        pkt.append(int(green8_1))
-        pkt.append(int(blue8_1))
-        pkt.append(int(red8_2))
-        pkt.append(int(green8_2))
-        pkt.append(int(blue8_2))
+        pkt = [red1, green1, blue1, red2, green2, blue2]
         return pkt
 
     @staticmethod
@@ -238,10 +220,10 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdSetMorphColour(cls, block, zone, colour1, colour2):
-        pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
-        pkt[6:9] = cls.validateColourPair(colour1, colour2)
+        pkt[6:12] = cls.validateColourPair(colour1, colour2)
         return pkt
 
     @classmethod
