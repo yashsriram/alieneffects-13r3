@@ -5,9 +5,7 @@ from usb import USBError
 
 
 class AlienwareUSBDriver(object):
-    """ Provides low level acquire/release and read/write access to an AlienFX
-    USB controller.
-    """
+    """Provides low level acquire-release, read-write access to an USB controller"""
 
     OUT_BM_REQUEST_TYPE = 0x21
     OUT_B_REQUEST = 0x09  # bRequest = Set Configuration
@@ -19,9 +17,11 @@ class AlienwareUSBDriver(object):
     IN_W_VALUE = 0x101
     IN_W_INDEX = 0x0
 
-    def __init__(self, controller):
+    def __init__(self, vendorId, productId, packetLength):
         self._control_taken = False
-        self._controller = controller
+        self._vendorId = vendorId
+        self._productId = productId
+        self._packetLength = packetLength
         self._device = None
 
     def acquire(self):
@@ -29,12 +29,12 @@ class AlienwareUSBDriver(object):
         if self._control_taken:
             return
         self._device = usb.core.find(
-            idVendor=self._controller.vendorId,
-            idProduct=self._controller.productId)
+            idVendor=self._vendorId,
+            idProduct=self._productId)
         if self._device is None:
             msg = "ERROR: No AlienFX USB controller found; tried "
-            msg += "VID {}".format(self._controller.vendorId)
-            msg += ", PID {}".format(self._controller.productId)
+            msg += "VID {}".format(self._vendorId)
+            msg += ", PID {}".format(self._productId)
             logging.error(msg)
         try:
             self._device.detach_kernel_driver(0)
@@ -53,7 +53,7 @@ class AlienwareUSBDriver(object):
                 "Cant claim interface. Error : {}".format(exc.strerror))
         self._control_taken = True
         logging.debug("USB device acquired, VID={}, PID={}".format(
-            hex(self._controller.vendorId), hex(self._controller.productId)))
+            hex(self._vendorId), hex(self._productId)))
 
     def release(self):
         """ Release control to libusb of the AlienFX controller."""
@@ -70,7 +70,7 @@ class AlienwareUSBDriver(object):
             logging.error("Cant re-attach. Error : {}".format(exc.strerror))
         self._control_taken = False
         logging.debug("USB device released, VID={}, PID={}".format(
-            hex(self._controller.vendorId), hex(self._controller.productId)))
+            hex(self._vendorId), hex(self._productId)))
 
     def writePacket(self, pkt):
         """ Write the given packet over USB to the AlienFX controller."""
@@ -93,7 +93,7 @@ class AlienwareUSBDriver(object):
             pkt = self._device.ctrl_transfer(
                 self.IN_BM_REQUEST_TYPE,
                 self.IN_B_REQUEST, self.IN_W_VALUE,
-                self.IN_W_INDEX, self._controller.cmdPacket.PACKET_LENGTH, 0)
+                self.IN_W_INDEX, self._packetLength, 0)
             return pkt
         except USBError as exc:
             logging.error("read_packet: {}".format(exc))

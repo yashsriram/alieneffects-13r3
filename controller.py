@@ -118,7 +118,7 @@ class AlienwareController:
 
         self.cmdPacket = AlienwareCmdPacket()
 
-        self.driver = AlienwareUSBDriver(self)
+        self.driver = AlienwareUSBDriver(self.vendorId, self.productId, self.cmdPacket.PACKET_LENGTH)
 
     def getZoneName(self, pkt):
         """ Given 3 bytes of a command packet, return a string zone

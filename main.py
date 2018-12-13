@@ -11,7 +11,7 @@ try:
     controller.reset('all-lights-on')
     controller.waitControllerReady()
 
-    color = [0xF, 0x0, 0xF]
+    color = [0xF, 0xF, 0x0]
 
     cmds = [
         controller.cmdPacket.makeCmdSetColour(1, 0x0021, color),
