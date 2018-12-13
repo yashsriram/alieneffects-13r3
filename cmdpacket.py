@@ -193,7 +193,7 @@ class AlienwareCmdPacket(object):
         return "UNKNOWN COMMAND : {} IN PACKET {}".format(pkt[1], pkt)
 
     @staticmethod
-    def _packColourPair(colour1, colour2):
+    def validateColourPair(colour1, colour2):
         """ Pack two colours into a list of bytes and return the list. Each
         colour is a 3-member tuple
         """
@@ -219,17 +219,11 @@ class AlienwareCmdPacket(object):
         return pkt
 
     @staticmethod
-    def _packColour(colour):
-        """ Pack a colour into a list of bytes and return the list. The
-        colour is a 3-member tuple
-        """
-        (red, green, blue) = colour
-        # pkt = [255, 0, 255] # DEBUG should set every color to pink (100% red, 0% green, 100% blue)
-        red8 = red / float(15) * 255
-        green8 = green / float(15) * 255
-        blue8 = blue / float(15) * 255
-        pkt = [int(red8), int(green8), int(blue8)]
-        return pkt
+    def validateColor(colour):
+        for band in colour:
+            if not (isinstance(band, int) and 0 <= band <= 255):
+                raise RuntimeError
+        return colour
 
     @classmethod
     def makeCmdGetStatus(cls):
@@ -247,7 +241,7 @@ class AlienwareCmdPacket(object):
         pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
-        pkt[6:9] = cls._packColourPair(colour1, colour2)
+        pkt[6:9] = cls.validateColourPair(colour1, colour2)
         return pkt
 
     @classmethod
@@ -255,7 +249,7 @@ class AlienwareCmdPacket(object):
         pkt = [0x02, cls.CMD_SET_BLINK_COLOUR, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
-        pkt[6:8] = cls._packColour(colour)
+        pkt[6:9] = cls.validateColor(colour)
         return pkt
 
     @classmethod
@@ -263,7 +257,7 @@ class AlienwareCmdPacket(object):
         pkt = [0x02, cls.CMD_SET_COLOUR, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
-        pkt[6:8] = cls._packColour(colour)
+        pkt[6:9] = cls.validateColor(colour)
         return pkt
 
     @classmethod

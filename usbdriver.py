@@ -88,15 +88,15 @@ class AlienwareUSBDriver(object):
                 self.OUT_W_INDEX, pkt, 0)
             logging.debug("number of bytes sent: {}".format(numBytesSent))
             if len(pkt) != numBytesSent:
-                logging.error("incorrect send intended to send {} of {} bytes but sent {} bytes"
+                logging.error("writePacket: intended to send {} of {} bytes but sent {} bytes"
                               .format(pkt, len(pkt), numBytesSent))
         except USBError as exc:
-            logging.error("write_packet: {}".format(exc))
+            logging.error("writePacket: {}".format(exc))
 
     def readPacket(self):
         """ Read a packet over USB return it"""
         if not self._control_taken:
-            logging.error("read_packet: control not taken...")
+            logging.error("readPacket: control not taken...")
             return
 
         try:
