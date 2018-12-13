@@ -24,32 +24,6 @@ class AlienwareUSBDriver(object):
         self._controller = controller
         self._device = None
 
-    def write_packet(self, pkt):
-        """ Write the given packet over USB to the AlienFX controller."""
-        if not self._control_taken:
-            return
-        try:
-            self._device.ctrl_transfer(
-                self.OUT_BM_REQUEST_TYPE,
-                self.OUT_B_REQUEST, self.OUT_W_VALUE,
-                self.OUT_W_INDEX, pkt, 0)
-        except USBError as exc:
-            logging.error("write_packet: {}".format(exc))
-
-    def read_packet(self):
-        """ Read a packet over USB from the AlienFX controller and return it."""
-        if not self._control_taken:
-            logging.error("read_packet: control not taken...")
-            return
-        try:
-            pkt = self._device.ctrl_transfer(
-                self.IN_BM_REQUEST_TYPE,
-                self.IN_B_REQUEST, self.IN_W_VALUE,
-                self.IN_W_INDEX, self._controller.cmdPacket.PACKET_LENGTH, 0)
-            return pkt
-        except USBError as exc:
-            logging.error("read_packet: {}".format(exc))
-
     def acquire(self):
         """ Acquire control from libusb of the AlienFX controller."""
         if self._control_taken:
@@ -97,3 +71,29 @@ class AlienwareUSBDriver(object):
         self._control_taken = False
         logging.debug("USB device released, VID={}, PID={}".format(
             hex(self._controller.vendorId), hex(self._controller.productId)))
+
+    def writePacket(self, pkt):
+        """ Write the given packet over USB to the AlienFX controller."""
+        if not self._control_taken:
+            return
+        try:
+            self._device.ctrl_transfer(
+                self.OUT_BM_REQUEST_TYPE,
+                self.OUT_B_REQUEST, self.OUT_W_VALUE,
+                self.OUT_W_INDEX, pkt, 0)
+        except USBError as exc:
+            logging.error("write_packet: {}".format(exc))
+
+    def readPacket(self):
+        """ Read a packet over USB from the AlienFX controller and return it."""
+        if not self._control_taken:
+            logging.error("read_packet: control not taken...")
+            return
+        try:
+            pkt = self._device.ctrl_transfer(
+                self.IN_BM_REQUEST_TYPE,
+                self.IN_B_REQUEST, self.IN_W_VALUE,
+                self.IN_W_INDEX, self._controller.cmdPacket.PACKET_LENGTH, 0)
+            return pkt
+        except USBError as exc:
+            logging.error("read_packet: {}".format(exc))

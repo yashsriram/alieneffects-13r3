@@ -157,8 +157,8 @@ class AlienwareController:
         """ Send a get-status command to the controller."""
         pkt = self.cmdPacket.makeCmdGetStatus()
         logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-        self.driver.write_packet(pkt)
-        if self.driver.read_packet() == self.cmdPacket.STATUS_READY:
+        self.driver.writePacket(pkt)
+        if self.driver.readPacket() == self.cmdPacket.STATUS_READY:
             logging.debug('Pinged. Status READY')
         else:
             logging.debug('Pinged. Status NOT READY')
@@ -168,7 +168,7 @@ class AlienwareController:
         reset_code = self.getResetCode(reset_type)
         pkt = self.cmdPacket.makeCmdReset(reset_code)
         logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-        self.driver.write_packet(pkt)
+        self.driver.writePacket(pkt)
         logging.debug('Reset done')
 
     def waitControllerReady(self):
@@ -180,9 +180,9 @@ class AlienwareController:
         while not ready:
             pkt = self.cmdPacket.makeCmdGetStatus()
             logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-            self.driver.write_packet(pkt)
+            self.driver.writePacket(pkt)
             try:
-                resp = self.driver.read_packet()
+                resp = self.driver.readPacket()
                 ready = (resp[0] == self.cmdPacket.STATUS_READY)
             except TypeError:
                 errcount += 1
@@ -292,7 +292,7 @@ class AlienwareController:
         """ Send the given commands to the controller. """
         for cmd in cmds:
             logging.debug("SENDING: {}".format(self.pktToString(cmd)))
-            self.driver.write_packet(cmd)
+            self.driver.writePacket(cmd)
 
     def setTheme(self, themefile):
         """ Send the given theme settings to the controller. This should result
