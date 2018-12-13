@@ -189,7 +189,7 @@ class AlienwareController:
                 logging.debug("No Status received yet... Failed tries=" + str(errcount))
             if errcount > 50:
                 logging.error("Controller status could not be retrieved. Is the device already in use?")
-                quit(-99)
+                exit(-1)
         logging.debug('Controller Ready')
 
     def pktToString(self, pkt_bytes):

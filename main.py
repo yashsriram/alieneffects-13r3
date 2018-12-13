@@ -1,8 +1,8 @@
-import control
+import controller
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
-controller = control.AlienwareController()
+controller = controller.AlienwareController()
 try:
     # Make controller ready
     controller.driver.acquire()
@@ -11,16 +11,9 @@ try:
     controller.reset('all-lights-on')
     controller.waitControllerReady()
 
-    color = [0x1, 0x0, 0x1]
+    color = [0x0, 0x0, 0x0]
 
     cmds = [
-        # controller.cmdPacket.make_cmd_set_speed(500),
-        # controller.cmdPacket.make_cmd_set_colour(1, control.AlienwareController.LEFT_KEYBOARD, color),
-        # controller.cmdPacket.make_cmd_set_colour(1, control.AlienwareController.MIDDLE_LEFT_KEYBOARD, color),
-        # controller.cmdPacket.make_cmd_set_colour(1, control.AlienwareController.MIDDLE_RIGHT_KEYBOARD, color),
-        # controller.cmdPacket.make_cmd_set_colour(1, control.AlienwareController.RIGHT_KEYBOARD, color),
-        # controller.cmdPacket.make_cmd_set_colour(1, control.AlienwareController.ALIEN_HEAD, color),
-        # controller.cmdPacket.make_cmd_set_colour(1, control.AlienwareController.LOGO, color),
         controller.cmdPacket.make_cmd_set_colour(1, 0x0080, color),
         controller.cmdPacket.make_cmd_loop_block_end(),
         controller.cmdPacket.make_cmd_transmit_execute(),
