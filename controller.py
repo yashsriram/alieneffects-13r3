@@ -2,7 +2,6 @@ import logging
 
 from usbdriver import AlienwareUSBDriver
 from cmdpacket import AlienwareCmdPacket
-from themefile import AlienwareThemeFile
 from functools import reduce
 
 
@@ -120,6 +119,57 @@ class AlienwareController:
 
         self.driver = AlienwareUSBDriver(self.vendorId, self.productId, self.cmdPacket.PACKET_LENGTH)
 
+    def ping(self):
+        """ Send a get-status command to the controller."""
+        pkt = self.cmdPacket.makeCmdGetStatus()
+        logging.debug("SENDING: {}".format(self.pktToString(pkt)))
+        self.driver.writePacket(pkt)
+        if self.driver.readPacket() == self.cmdPacket.STATUS_READY:
+            logging.debug('Pinged. Status READY')
+        else:
+            logging.debug('Pinged. Status NOT READY')
+
+    def reset(self, reset_type):
+        """ Send a "reset" packet to the AlienFX controller."""
+        reset_code = self.getResetCode(reset_type)
+        pkt = self.cmdPacket.makeCmdReset(reset_code)
+        logging.debug("SENDING: {}".format(self.pktToString(pkt)))
+        self.driver.writePacket(pkt)
+        logging.debug('Reset done')
+
+    def waitControllerReady(self):
+        """ Keep sending a "get status" packet to the AlienFX controller and
+        return only when the controller is ready
+        """
+        ready = False
+        errcount = 0
+        while not ready:
+            pkt = self.cmdPacket.makeCmdGetStatus()
+            logging.debug("SENDING: {}".format(self.pktToString(pkt)))
+            self.driver.writePacket(pkt)
+            try:
+                resp = self.driver.readPacket()
+                ready = (resp[0] == self.cmdPacket.STATUS_READY)
+            except TypeError:
+                errcount += 1
+                logging.debug("No Status received yet... Failed tries=" + str(errcount))
+            if errcount > 50:
+                logging.error("Controller status could not be retrieved. Is the device already in use?")
+                exit(-1)
+        logging.debug('Controller Ready')
+
+    def sendCommands(self, cmds):
+        """ Send the given commands to the controller. """
+        for cmd in cmds:
+            logging.debug("SENDING: {}".format(self.pktToString(cmd)))
+            self.driver.writePacket(cmd)
+
+    def pktToString(self, pkt_bytes):
+        """ Return a human readable string representation of an AlienFX
+        command packet.
+        """
+        return self.cmdPacket.pktToString(pkt_bytes, self)
+
     def getZoneName(self, pkt):
         """ Given 3 bytes of a command packet, return a string zone
             name corresponding to it
@@ -153,51 +203,6 @@ class AlienwareController:
         else:
             return "UNKNOWN"
 
-    def ping(self):
-        """ Send a get-status command to the controller."""
-        pkt = self.cmdPacket.makeCmdGetStatus()
-        logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-        self.driver.writePacket(pkt)
-        if self.driver.readPacket() == self.cmdPacket.STATUS_READY:
-            logging.debug('Pinged. Status READY')
-        else:
-            logging.debug('Pinged. Status NOT READY')
-
-    def reset(self, reset_type):
-        """ Send a "reset" packet to the AlienFX controller."""
-        reset_code = self.getResetCode(reset_type)
-        pkt = self.cmdPacket.makeCmdReset(reset_code)
-        logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-        self.driver.writePacket(pkt)
-        logging.debug('Reset done')
-
-    def waitControllerReady(self):
-        """ Keep sending a "get status" packet to the AlienFX controller and 
-        return only when the controller is ready
-        """
-        ready = False
-        errcount = 0
-        while not ready:
-            pkt = self.cmdPacket.makeCmdGetStatus()
-            logging.debug("SENDING: {}".format(self.pktToString(pkt)))
-            self.driver.writePacket(pkt)
-            try:
-                resp = self.driver.readPacket()
-                ready = (resp[0] == self.cmdPacket.STATUS_READY)
-            except TypeError:
-                errcount += 1
-                logging.debug("No Status received yet... Failed tries=" + str(errcount))
-            if errcount > 50:
-                logging.error("Controller status could not be retrieved. Is the device already in use?")
-                exit(-1)
-        logging.debug('Controller Ready')
-
-    def pktToString(self, pkt_bytes):
-        """ Return a human readable string representation of an AlienFX
-        command packet.
-        """
-        return self.cmdPacket.pktToString(pkt_bytes, self)
-
     def getNoZoneCode(self):
         """ Return a zone code corresponding to all non-visible zones."""
         zone_codes = [self.zone_map[x] for x in self.zone_map]
@@ -219,106 +224,3 @@ class AlienwareController:
                 return reset
         logging.warning("Unknown reset type: {}".format(reset_name))
         return 0
-
-    def makeLoopCommands(self, themefile, zones, block, loop_items):
-        """ Given loop-items from the theme file, return a list of loop
-        commands.
-        """
-        loop_cmds = []
-        pkt = self.cmdPacket
-        for item in loop_items:
-            item_type = themefile.get_action_type(item)
-            item_colours = themefile.get_action_colours(item)
-            if item_type == AlienwareThemeFile.KW_ACTION_TYPE_FIXED:
-                if len(item_colours) != 1:
-                    logging.warning("fixed must have exactly one colour value")
-                    continue
-                loop_cmds.append(
-                    pkt.makeCmdSetColour(block, zones, item_colours[0]))
-            elif item_type == AlienwareThemeFile.KW_ACTION_TYPE_BLINK:
-                if len(item_colours) != 1:
-                    logging.warning("blink must have exactly one colour value")
-                    continue
-                loop_cmds.append(
-                    pkt.makeCmdSetBlinkColour(block, zones, item_colours[0]))
-            elif item_type == AlienwareThemeFile.KW_ACTION_TYPE_MORPH:
-                if len(item_colours) != 2:
-                    logging.warning("morph must have exactly two colour values")
-                    continue
-                loop_cmds.append(
-                    pkt.makeCmdSetMorphColour(
-                        block, zones, item_colours[0], item_colours[1]))
-            else:
-                logging.warning("unknown loop item type: {}".format(item_type))
-        return loop_cmds
-
-    def makeZoneCommands(self, themefile, state_name, boot=False):
-        """ Given a theme file, return a list of zone commands.
-        
-        If 'boot' is True, then the colour commands created are not saved with
-        SAVE_NEXT commands. Also, the final command is one to set the colour
-        of all non-visible zones to black.
-        """
-        zone_cmds = []
-        block = 1
-        pkt = self.cmdPacket
-        state = self.state_map[state_name]
-        state_items = themefile.get_state_items(state_name)
-        for item in state_items:
-            zone_codes = self.getZoneCodes(themefile.get_zone_names(item))
-            loop_items = themefile.get_loop_items(item)
-            loop_cmds = self.makeLoopCommands(
-                themefile, zone_codes, block, loop_items)
-            if (loop_cmds):
-                block += 1
-                for loop_cmd in loop_cmds:
-                    if not boot:
-                        zone_cmds.append(pkt.makeCmdSaveNext(state))
-                    zone_cmds.append(loop_cmd)
-                if not boot:
-                    zone_cmds.append(pkt.makeCmdSaveNext(state))
-                zone_cmds.append(pkt.makeCmdLoopBlockEnd())
-        if zone_cmds:
-            if not boot:
-                zone_cmds.append(pkt.makeCmdSave())
-        if boot:
-            zone_cmds.append(
-                pkt.makeCmdSetColour(
-                    block, self.getNoZoneCode(), (0, 0, 0)))
-            zone_cmds.append(pkt.makeCmdLoopBlockEnd())
-        return zone_cmds
-
-    def sendCommands(self, cmds):
-        """ Send the given commands to the controller. """
-        for cmd in cmds:
-            logging.debug("SENDING: {}".format(self.pktToString(cmd)))
-            self.driver.writePacket(cmd)
-
-    def setTheme(self, themefile):
-        """ Send the given theme settings to the controller. This should result
-        in the lights changing to the theme settings immediately.
-        """
-        try:
-            self.driver.acquire()
-            bootCommands = []
-
-            # prepare the controller
-            self.ping()
-            self.reset("all-lights-on")
-            self.waitControllerReady()
-
-            for state_name in self.state_map:
-                commands = self.makeZoneCommands(themefile, state_name)
-                # Boot block commands are saved for sending again later.
-                # The second time, they are sent without SAVE_NEXT commands.
-                if state_name == self.STATE_BOOT:
-                    bootCommands = self.makeZoneCommands(themefile, state_name, boot=True)
-                self.sendCommands(commands)
-
-            self.sendCommands([self.cmdPacket.makeCmdSetSpeed(themefile.get_speed())])
-            # send the boot block commands again
-            self.sendCommands(bootCommands)
-            cmd = self.cmdPacket.makeCmdTransmitExecute()
-            self.sendCommands([cmd])
-        finally:
-            self.driver.release()
