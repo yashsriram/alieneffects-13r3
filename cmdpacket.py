@@ -46,16 +46,19 @@ class AlienwareCmdPacket(object):
     def pktToString(self, pkt_bytes, controller):
         """ Return a human readable string representation of a command packet.
         """
-        if len(pkt_bytes) != self.PACKET_LENGTH:
-            print(len(pkt_bytes), self.PACKET_LENGTH)
-            return "BAD PACKET: {}".format(pkt_bytes)
-        else:
+        # if len(pkt_bytes) != self.PACKET_LENGTH:
+        #     print(len(pkt_bytes), self.PACKET_LENGTH)
+        #     print("BAD PACKET: {}".format(pkt_bytes))
+
+        try:
             cmd = pkt_bytes[1]
             args = {"pkt": pkt_bytes, "controller": controller}
             if cmd in list(self.command_parsers.keys()):
                 return self.command_parsers[cmd](args)
             else:
                 return self._parseCmdUnknown(args)
+        except Exception as e:
+            print(e)
 
     @staticmethod
     def _unpackColourPair(pkt):
@@ -230,26 +233,17 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdGetStatus(cls):
-        """ Return a command packet for the "get status" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_GET_STATUS, 0, 0, 0, 0, 0, 0, 0]
         return pkt
 
     @classmethod
     def makeCmdReset(cls, reset_type):
-        """ Return a command packet for the "reset" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_RESET, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = reset_type & 0xff
         return pkt
 
     @classmethod
     def makeCmdSetMorphColour(cls, block, zone, colour1, colour2):
-        """ Return a command packet for the "set morph colour" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
@@ -258,9 +252,6 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdSetBlinkColour(cls, block, zone, colour):
-        """ Return a command packet for the "set blink colour" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_SET_BLINK_COLOUR, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
@@ -269,9 +260,6 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdSetColour(cls, block, zone, colour):
-        """ Return a command packet for the "set colour" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_SET_COLOUR, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
@@ -280,42 +268,27 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdLoopBlockEnd(cls):
-        """ Return a command packet for the "loop block end" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_LOOP_BLOCK_END, 0, 0, 0, 0, 0, 0, 0]
         return pkt
 
     @classmethod
     def makeCmdSetSpeed(cls, speed):
-        """ Return a command packet for the "set speed" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_SET_SPEED, 0, 0, 0, 0, 0, 0, 0]
         pkt[2:4] = [(speed & 0xff00) >> 8, speed & 0xff]
         return pkt
 
     @classmethod
     def makeCmdTransmitExecute(cls):
-        """ Return a command packet for the "transmit execute" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_TRANSMIT_EXECUTE, 0, 0, 0, 0, 0, 0, 0]
         return pkt
 
     @classmethod
     def makeCmdSaveNext(cls, state):
-        """ Return a command packet for the "save next" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_SAVE_NEXT, 0, 0, 0, 0, 0, 0, 0]
         pkt[2] = state & 0xff
         return pkt
 
     @classmethod
     def makeCmdSave(cls):
-        """ Return a command packet for the "save" command with the
-        given parameters.
-        """
         pkt = [0x02, cls.CMD_SAVE, 0, 0, 0, 0, 0, 0, 0]
         return pkt
