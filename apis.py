@@ -17,79 +17,19 @@ def turnOffEverything():
         controller.driver.release()
 
 
-def setKeyboardBacklight(color):
-    controller = AlienwareController()
-    try:
-        controller.driver.acquire()
-
-        controller.reset(controller.RESET_ALL_LIGHTS_ON)
-        controller.waitUntilControllerReady()
-
-        commands = [
-            controller.cmdPacket.makeCmdSetColour(1,
-                                                  AlienwareController.LEFT_KEYBOARD
-                                                  | AlienwareController.MIDDLE_LEFT_KEYBOARD
-                                                  | AlienwareController.MIDDLE_RIGHT_KEYBOARD
-                                                  | AlienwareController.RIGHT_KEYBOARD
-                                                  , color),
-            controller.cmdPacket.makeCmdLoopBlockEnd(),
-            controller.cmdPacket.makeCmdTransmitExecute(),
-        ]
-        controller.sendCommands(commands)
-
-        controller.waitUntilControllerReady()
-    except Exception as e:
-        print(e)
-    finally:
-        controller.driver.release()
+def setKeyboardBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
+    masterSet(AlienwareController.LEFT_KEYBOARD
+              | AlienwareController.MIDDLE_LEFT_KEYBOARD
+              | AlienwareController.MIDDLE_RIGHT_KEYBOARD
+              | AlienwareController.RIGHT_KEYBOARD, effect, color1, speed, color2)
 
 
-def setTouchpadBacklight(color):
-    controller = AlienwareController()
-    try:
-        controller.driver.acquire()
-
-        controller.reset(controller.RESET_ALL_LIGHTS_ON)
-        controller.waitUntilControllerReady()
-
-        commands = [
-            controller.cmdPacket.makeCmdSetColour(1,
-                                                  AlienwareController.TOUCH_PAD,
-                                                  color),
-            controller.cmdPacket.makeCmdLoopBlockEnd(),
-            controller.cmdPacket.makeCmdTransmitExecute(),
-        ]
-        controller.sendCommands(commands)
-
-        controller.waitUntilControllerReady()
-    except Exception as e:
-        print(e)
-    finally:
-        controller.driver.release()
+def setTouchpadBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
+    masterSet(AlienwareController.TOUCH_PAD, effect, color1, speed, color2)
 
 
-def setAlienheadBacklight(color):
-    controller = AlienwareController()
-    try:
-        controller.driver.acquire()
-
-        controller.reset(controller.RESET_ALL_LIGHTS_ON)
-        controller.waitUntilControllerReady()
-
-        commands = [
-            controller.cmdPacket.makeCmdSetColour(1,
-                                                  AlienwareController.ALIEN_HEAD,
-                                                  color),
-            controller.cmdPacket.makeCmdLoopBlockEnd(),
-            controller.cmdPacket.makeCmdTransmitExecute(),
-        ]
-        controller.sendCommands(commands)
-
-        controller.waitUntilControllerReady()
-    except Exception as e:
-        print(e)
-    finally:
-        controller.driver.release()
+def setAlienheadBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
+    masterSet(AlienwareController.ALIEN_HEAD, effect, color1, speed, color2)
 
 
 def setAlienwareLogoBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
