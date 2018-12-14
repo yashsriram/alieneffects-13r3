@@ -1,11 +1,5 @@
 # Alien Effects for Alienware 13 R3
 
-## Disclaimer
-
-* All the information here is obtained via trail and error reverse engineering, because the alienware lights software doesn't seem to be opensource
-* There is no conclusive evidence that these methods are the best way to go
-* But they do work and did no harm to my system until now
-
 ## Introduction
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
@@ -134,6 +128,12 @@ Multiple zones can be referenced at once for an effect as described in Zone code
 * Some zones (like power button) seems to be only be accessible in some states (like pugged in, on battery, on battery low) only
 * If same zone is addressed in different sequences flashing can happen
 * If you cannot control touch pad, set `Trackpad backlight` to `Enable` in BIOS settings
+
+# Disclaimer
+
+* All the information here is obtained via trail and error reverse engineering, because the alienware lights software doesn't seem to be opensource
+* There is no conclusive evidence that these methods are the best way to go
+* But they do work and did no harm to my system until now
 
 # References
 [Alienfx](https://github.com/trackmastersteve/alienfx) by trackmastersteve
