@@ -1,4 +1,7 @@
 from controller import AlienwareController
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def turnOffEverything():
@@ -90,30 +93,37 @@ def setAlienheadBacklight(color):
 
 
 def setAlienwareLogoBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
+    masterSet(AlienwareController.ALIENWARE_LOGO, effect, color1, speed, color2)
+
+
+def masterSet(zonesCode, effect, color1, speed=200, color2=(0, 0, 0)):
     controller = AlienwareController()
     try:
-        controller.driver.acquire()
-
-        controller.reset(controller.RESET_ALL_LIGHTS_ON)
-        controller.waitUntilControllerReady()
+        if zonesCode > 0xffff:
+            raise RuntimeError('Invalid zones code')
 
         if speed < AlienwareController.MIN_SPEED:
             raise RuntimeError('Too much speed')
 
         if effect == AlienwareController.EFFECT_SET_COLOR:
-            commands = [controller.cmdPacket.makeCmdSetColour(1, AlienwareController.ALIENWARE_LOGO, color1)]
+            commands = [controller.cmdPacket.makeCmdSetColour(1, zonesCode, color1)]
         elif effect == AlienwareController.EFFECT_BLINK_COLOR:
             commands = [
                 controller.cmdPacket.makeCmdSetSpeed(speed),
-                controller.cmdPacket.makeCmdSetBlinkColour(1, AlienwareController.ALIENWARE_LOGO, color1)
+                controller.cmdPacket.makeCmdSetBlinkColour(1, zonesCode, color1)
             ]
         elif effect == AlienwareController.EFFECT_MORPH_COLOR:
             commands = [
                 controller.cmdPacket.makeCmdSetSpeed(speed),
-                controller.cmdPacket.makeCmdSetMorphColour(1, AlienwareController.ALIENWARE_LOGO, color1, color2)
+                controller.cmdPacket.makeCmdSetMorphColour(1, zonesCode, color1, color2)
             ]
         else:
             raise RuntimeError('Invalid effect code')
+
+        controller.driver.acquire()
+
+        controller.reset(controller.RESET_ALL_LIGHTS_ON)
+        controller.waitUntilControllerReady()
 
         commands += [
             controller.cmdPacket.makeCmdLoopBlockEnd(),
@@ -123,6 +133,6 @@ def setAlienwareLogoBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
 
         controller.waitUntilControllerReady()
     except Exception as e:
-        print(e)
+        logging.error('Exception occurred', exc_info=True)
     finally:
         controller.driver.release()

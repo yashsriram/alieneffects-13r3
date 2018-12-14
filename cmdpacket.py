@@ -188,10 +188,10 @@ class AlienwareCmdPacket(object):
     def validateColourPair(colour1, colour2):
         for band in colour1:
             if not (isinstance(band, int) and 0 <= band <= 255):
-                raise RuntimeError
+                raise RuntimeError('Invalid color')
         for band in colour2:
             if not (isinstance(band, int) and 0 <= band <= 255):
-                raise RuntimeError
+                raise RuntimeError('Invalid color')
         (red1, green1, blue1) = colour1
         (red2, green2, blue2) = colour2
         pkt = [red1, green1, blue1, red2, green2, blue2]
@@ -201,7 +201,7 @@ class AlienwareCmdPacket(object):
     def validateColor(colour):
         for band in colour:
             if not (isinstance(band, int) and 0 <= band <= 255):
-                raise RuntimeError
+                raise RuntimeError('Invalid color')
         return colour
 
     @classmethod
