@@ -83,9 +83,9 @@ class AlienwareUSBDriver(object):
 
         try:
             numBytesSent = self._device.ctrl_transfer(
-                self.OUT_BM_REQUEST_TYPE,
-                self.OUT_B_REQUEST, self.OUT_W_VALUE,
-                self.OUT_W_INDEX, pkt, 0)
+                self.OUT_BM_REQUEST_TYPE, self.OUT_B_REQUEST,
+                self.OUT_W_VALUE, self.OUT_W_INDEX,
+                pkt, 0)
             logging.debug("wrote: {}, {} bytes".format(pkt, len(pkt)))
             if len(pkt) != numBytesSent:
                 logging.error("writePacket: intended to write {} of {} bytes but wrote {} bytes"
@@ -101,9 +101,9 @@ class AlienwareUSBDriver(object):
 
         try:
             pkt = self._device.ctrl_transfer(
-                self.IN_BM_REQUEST_TYPE,
-                self.IN_B_REQUEST, self.IN_W_VALUE,
-                self.IN_W_INDEX, self._packetLength, 0)
+                self.IN_BM_REQUEST_TYPE, self.IN_B_REQUEST,
+                self.IN_W_VALUE, self.IN_W_INDEX,
+                self._packetLength, 0)
             logging.debug("read: {}".format(pkt))
             return pkt
         except USBError as exc:
