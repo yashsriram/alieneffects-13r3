@@ -51,6 +51,7 @@ use configuration 1. occasionally, kernel drivers need to be disabled
 
 
 ##Commands
+
 | Command | Packet Structure (bytes) | Desciption | Comment | 
 | -- | -- | -- | -- |
 | Reset |  2 7 t 0 0 0 0 0 0 0 0 0 | t : type | Should call before every change. This takes some time, and you should wait until the operation ends. Premature commands might fail. |
