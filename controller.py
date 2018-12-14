@@ -1,15 +1,13 @@
 import logging
 
-from usbdriver import AlienwareUSBDriver
 from cmdpacket import AlienwareCmdPacket
-from functools import reduce
+from usbdriver import AlienwareUSBDriver
 
 
 class AlienwareController:
-
-    # Speed capabilities. The higher the number, the slower the speed of
-    # blink/morph actions. The min speed is selected by trial and error as
-    # the lowest value that will not result in strange blink/morph behaviour.
+    # Speed capabilities
+    # The higher the number, the slower the speed of blink/morph actions
+    # The min speed is selected by trial and error as the lowest value that won't result in strange blink/morph behaviour.
     DEFAULT_SPEED = 200
     MIN_SPEED = 50
 
@@ -20,7 +18,7 @@ class AlienwareController:
     RIGHT_KEYBOARD = 0x0001
 
     ALIEN_HEAD = 0x0020
-    LOGO = 0x0040
+    ALIENWARE_LOGO = 0x0040
     TOUCH_PAD = 0x0080
     POWER_BUTTON = 0x0100
 
@@ -61,37 +59,37 @@ class AlienwareController:
     BATTERY_CRITICAL = 9
 
     def __init__(self):
-        self.name = "Alienware m13xR3"
+        self.name = "Alienware 13 R3"
 
         # USB VID and PID
         self.vendorId = 0x187c
         self.productId = 0x0529
 
         # map the zone names to their codes
-        self.zone_map = {
+        self.zoneMap = {
             self.ZONE_LEFT_KEYBOARD: self.LEFT_KEYBOARD,
             self.ZONE_MIDDLE_LEFT_KEYBOARD: self.MIDDLE_LEFT_KEYBOARD,
             self.ZONE_MIDDLE_RIGHT_KEYBOARD: self.MIDDLE_RIGHT_KEYBOARD,
             self.ZONE_RIGHT_KEYBOARD: self.RIGHT_KEYBOARD,
             self.ZONE_ALIEN_HEAD: self.ALIEN_HEAD,
-            self.ZONE_LOGO: self.LOGO,
+            self.ZONE_LOGO: self.ALIENWARE_LOGO,
             self.ZONE_TOUCH_PAD: self.TOUCH_PAD,
             self.ZONE_POWER_BUTTON: self.POWER_BUTTON,
         }
 
         # zones that have special behaviour in the different power states
-        self.power_zones = [
+        self.powerZones = [
             self.ZONE_POWER_BUTTON,
         ]
 
         # map the reset names to their codes
-        self.reset_types = {
+        self.resetTypes = {
             self.RESET_ALL_LIGHTS_OFF: "all-lights-off",
             self.RESET_ALL_LIGHTS_ON: "all-lights-on"
         }
 
         # map the state names to their codes
-        self.state_map = {
+        self.stateMap = {
             self.STATE_BOOT: self.BOOT,
             self.STATE_AC_SLEEP: self.AC_SLEEP,
             self.STATE_AC_CHARGED: self.AC_CHARGED,
@@ -117,9 +115,8 @@ class AlienwareController:
             logging.debug('Pinged, STATUS_BUSY')
         return isReady
 
-    def reset(self, reset_type):
-        reset_code = self.getResetCode(reset_type)
-        pkt = self.cmdPacket.makeCmdReset(reset_code)
+    def reset(self, resetCode):
+        pkt = self.cmdPacket.makeCmdReset(resetCode)
         logging.debug("writing command: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
 
@@ -152,8 +149,8 @@ class AlienwareController:
         """
         zone_mask = (pkt[0] << 16) + (pkt[1] << 8) + pkt[2]
         zone_name = ""
-        for zone in self.zone_map:
-            bit_mask = self.zone_map[zone]
+        for zone in self.zoneMap:
+            bit_mask = self.zoneMap[zone]
             if zone_mask & bit_mask:
                 if zone_name != "":
                     zone_name += ","
@@ -167,36 +164,14 @@ class AlienwareController:
 
     def getStateName(self, state):
         """ Given a state number, return a string state name """
-        for state_name in self.state_map:
-            if self.state_map[state_name] == state:
+        for state_name in self.stateMap:
+            if self.stateMap[state_name] == state:
                 return state_name
         return "UNKNOWN"
 
     def getResetTypeName(self, num):
         """ Given a reset number, return a string reset name """
-        if num in list(self.reset_types.keys()):
-            return self.reset_types[num]
+        if num in list(self.resetTypes.keys()):
+            return self.resetTypes[num]
         else:
             return "UNKNOWN"
-
-    def getNoZoneCode(self):
-        """ Return a zone code corresponding to all non-visible zones."""
-        zone_codes = [self.zone_map[x] for x in self.zone_map]
-        return ~reduce(lambda x, y: x | y, zone_codes, 0)
-
-    def getZoneCodes(self, zone_names):
-        """ Given zone names, return the zone codes they refer to.
-        """
-        zones = 0
-        for zone in zone_names:
-            if zone in self.zone_map:
-                zones |= self.zone_map[zone]
-        return zones
-
-    def getResetCode(self, reset_name):
-        """ Given the name of a reset action, return its code. """
-        for reset in self.reset_types:
-            if reset_name == self.reset_types[reset]:
-                return reset
-        logging.warning("Unknown reset type: {}".format(reset_name))
-        return 0
