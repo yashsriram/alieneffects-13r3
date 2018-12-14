@@ -206,18 +206,27 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdGetStatus(cls):
-        pkt = [0x02, cls.CMD_GET_STATUS, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_GET_STATUS, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         return pkt
 
     @classmethod
     def makeCmdReset(cls, reset_type):
-        pkt = [0x02, cls.CMD_RESET, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_RESET, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         pkt[2] = reset_type & 0xff
         return pkt
 
     @classmethod
     def makeCmdSetMorphColour(cls, block, zone, colour1, colour2):
-        pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
         pkt[6:12] = cls.validateColourPair(colour1, colour2)
@@ -225,7 +234,10 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdSetBlinkColour(cls, block, zone, colour):
-        pkt = [0x02, cls.CMD_SET_BLINK_COLOUR, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SET_BLINK_COLOUR, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
         pkt[6:9] = cls.validateColor(colour)
@@ -233,7 +245,10 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdSetColour(cls, block, zone, colour):
-        pkt = [0x02, cls.CMD_SET_COLOUR, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SET_COLOUR, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         pkt[2] = block & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
         pkt[6:9] = cls.validateColor(colour)
@@ -241,27 +256,42 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def makeCmdLoopBlockEnd(cls):
-        pkt = [0x02, cls.CMD_LOOP_BLOCK_END, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_LOOP_BLOCK_END, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         return pkt
 
     @classmethod
     def makeCmdSetSpeed(cls, speed):
-        pkt = [0x02, cls.CMD_SET_SPEED, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SET_SPEED, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         pkt[2:4] = [(speed & 0xff00) >> 8, speed & 0xff]
         return pkt
 
     @classmethod
     def makeCmdTransmitExecute(cls):
-        pkt = [0x02, cls.CMD_TRANSMIT_EXECUTE, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_TRANSMIT_EXECUTE, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         return pkt
 
     @classmethod
     def makeCmdSaveNext(cls, state):
-        pkt = [0x02, cls.CMD_SAVE_NEXT, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SAVE_NEXT, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         pkt[2] = state & 0xff
         return pkt
 
     @classmethod
     def makeCmdSave(cls):
-        pkt = [0x02, cls.CMD_SAVE, 0, 0, 0, 0, 0, 0, 0]
+        pkt = [0x02, cls.CMD_SAVE, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
         return pkt
