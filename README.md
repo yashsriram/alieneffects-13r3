@@ -91,6 +91,7 @@ There are a lot more zone-codes and command-codes which are doing things we dont
 like, for example setting multiple zones to different colors and such stuff, I think that these are used (or can be used) by some games.
 
 | Hex | Binary | Zone Alienware 13 R3 | 
+| -- | -- | -- | 
 | 0x0001 | 000 0000 0000 0001 | Keyboard right
 | 0x0002 | 000 0000 0000 0010 | Keyboard middle-right
 | 0x0004 | 000 0000 0000 0100 | Keyboard middle-left
