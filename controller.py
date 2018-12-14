@@ -26,6 +26,11 @@ class AlienwareController:
     # WIFI_LED = 0x0400
     # CAPS_LED = 0x0080
 
+    # Effect codes
+    EFFECT_SET_COLOR = 1
+    EFFECT_BLINK_COLOR = 2
+    EFFECT_MORPH_COLOR = 3
+
     # Reset codes
     RESET_ALL_LIGHTS_OFF = 3
     RESET_ALL_LIGHTS_ON = 4
@@ -84,8 +89,8 @@ class AlienwareController:
 
         # map the reset names to their codes
         self.resetTypes = {
-            self.RESET_ALL_LIGHTS_OFF: "all-lights-off",
-            self.RESET_ALL_LIGHTS_ON: "all-lights-on"
+            self.RESET_ALL_LIGHTS_OFF: "ALL-LIGHTS-OFF",
+            self.RESET_ALL_LIGHTS_ON: "ALL-LIGHTS-ON"
         }
 
         # map the state names to their codes

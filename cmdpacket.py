@@ -1,11 +1,8 @@
 class AlienwareCmdPacket(object):
-    """Provides facilities to parse and create packets
-
-    This class provides methods to parse binary packets into human readable
-    strings. It also provides methods to create binary packets.
-
-    As this is for newer alienfx controllers which are setting 8-bits per color (256 values from 0-255 each) we have to convert the color.json-values as they are 4-bits (16 values from 0-15)
-
+    """
+    Provides facilities to parse and create packets.
+    This class provides methods to parse binary packets into human readable strings.
+    It also provides methods to create binary packets.
     """
 
     # Command codes
@@ -27,10 +24,10 @@ class AlienwareCmdPacket(object):
 
     PACKET_LENGTH = 12
 
-    command_parsers = {}
+    commandParsers = {}
 
     def __init__(self):
-        self.command_parsers = {
+        self.commandParsers = {
             self.CMD_SET_MORPH_COLOUR: self._parseCmdSetMorphColour,
             self.CMD_SET_BLINK_COLOUR: self._parseCmdSetBlinkColour,
             self.CMD_SET_COLOUR: self._parseCmdSetColour,
@@ -48,8 +45,8 @@ class AlienwareCmdPacket(object):
         try:
             cmd = pkt_bytes[1]
             args = {"pkt": pkt_bytes, "controller": controller}
-            if cmd in list(self.command_parsers.keys()):
-                return self.command_parsers[cmd](args)
+            if cmd in list(self.commandParsers.keys()):
+                return self.commandParsers[cmd](args)
             else:
                 return self._parseCmdUnknown(args)
         except Exception as e:

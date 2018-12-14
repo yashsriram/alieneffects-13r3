@@ -89,7 +89,7 @@ def setAlienheadBacklight(color):
         controller.driver.release()
 
 
-def setAlienwareLogoBacklight(color):
+def setAlienwareLogoBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
     controller = AlienwareController()
     try:
         controller.driver.acquire()
@@ -97,10 +97,25 @@ def setAlienwareLogoBacklight(color):
         controller.reset(controller.RESET_ALL_LIGHTS_ON)
         controller.waitUntilControllerReady()
 
-        commands = [
-            controller.cmdPacket.makeCmdSetColour(1,
-                                                  AlienwareController.ALIENWARE_LOGO,
-                                                  color),
+        if speed < AlienwareController.MIN_SPEED:
+            raise RuntimeError('Too much speed')
+
+        if effect == AlienwareController.EFFECT_SET_COLOR:
+            commands = [controller.cmdPacket.makeCmdSetColour(1, AlienwareController.ALIENWARE_LOGO, color1)]
+        elif effect == AlienwareController.EFFECT_BLINK_COLOR:
+            commands = [
+                controller.cmdPacket.makeCmdSetSpeed(speed),
+                controller.cmdPacket.makeCmdSetBlinkColour(1, AlienwareController.ALIENWARE_LOGO, color1)
+            ]
+        elif effect == AlienwareController.EFFECT_MORPH_COLOR:
+            commands = [
+                controller.cmdPacket.makeCmdSetSpeed(speed),
+                controller.cmdPacket.makeCmdSetMorphColour(1, AlienwareController.ALIENWARE_LOGO, color1, color2)
+            ]
+        else:
+            raise RuntimeError('Invalid effect code')
+
+        commands += [
             controller.cmdPacket.makeCmdLoopBlockEnd(),
             controller.cmdPacket.makeCmdTransmitExecute(),
         ]
