@@ -50,7 +50,7 @@ use configuration 1. occasionally, kernel drivers need to be disabled
  - wLength = 0 (Constant)
 
 
-##Commands
+## Commands
 
 | Command | Packet Structure (bytes) | Desciption | Comment | 
 | -- | -- | -- | -- |
@@ -81,9 +81,34 @@ use configuration 1. occasionally, kernel drivers need to be disabled
     02:1d:03:  :  :  :  :  :   (on apply)
     02:1d:81:  :  :  :  :  :   (on go-dark)
 
+# Reverse Engineering
 
-Contants
---------
+## Zone addresses:
+
+It looks like, they used one bit per zone, so that we are able to set multiple zones by adding their base codes (as for keyboard 0xF)
+
+There are a lot more zone-codes and command-codes which are doing things we dont know about (yet), 
+like, for example setting multiple zones to different colors and such stuff, I think that these are used (or can be used) by some games.
+
+| Hex | Binary | Zone Alienware 13 R3 | 
+| 0x0001 | 000 0000 0000 0001 | Keyboard right
+| 0x0002 | 000 0000 0000 0010 | Keyboard middle-right
+| 0x0004 | 000 0000 0000 0100 | Keyboard middle-left
+| 0x0008 | 000 0000 0000 1000 | Keyboard left
+| 0x000F | 000 0000 0000 1111 | Keyboard: all fields <= interesting: 0x1 + 0x2 + 0x4 + 0x8 = 0xF
+
+| 0x0010 | 000 0000 0001 0000 | unknown/unused
+
+| 0x0020 | 000 0000 0010 0000 | Alien head
+| 0x0040 | 000 0000 0100 0000 | Alienware name
+| 0x0080 | 000 0000 1000 0000 | Touch pad
+| 0x0100 | 000 0001 0000 0000 | Power button
+
+| 0x0200 | 000 0010 0000 0000 | unknown/unused
+
+States: Some zone seem to be only be accessed in some states.
+Caution: Different settings for a zone in different states may interfere, so that flashing can happen...
+
 
 ### Reset
 
