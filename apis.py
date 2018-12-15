@@ -46,16 +46,21 @@ def masterSet(zonesCode, effect, color1, speed=200, color2=(0, 0, 0)):
             raise RuntimeError('Too much speed')
 
         if effect == AlienwareController.EFFECT_SET_COLOR:
-            commands = [controller.cmdPacket.makeCmdSetColour(1, zonesCode, color1)]
+            commands = [
+                controller.cmdPacket.makeCmdSetColour(1, zonesCode, color1),
+                controller.cmdPacket.makeCmdLoopBlockEnd(),
+            ]
         elif effect == AlienwareController.EFFECT_BLINK_COLOR:
             commands = [
                 controller.cmdPacket.makeCmdSetSpeed(speed),
-                controller.cmdPacket.makeCmdSetBlinkColour(1, zonesCode, color1)
+                controller.cmdPacket.makeCmdSetBlinkColour(1, zonesCode, color1),
+                controller.cmdPacket.makeCmdLoopBlockEnd(),
             ]
         elif effect == AlienwareController.EFFECT_MORPH_COLOR:
             commands = [
                 controller.cmdPacket.makeCmdSetSpeed(speed),
-                controller.cmdPacket.makeCmdSetMorphColour(1, zonesCode, color1, color2)
+                controller.cmdPacket.makeCmdSetMorphColour(1, zonesCode, color1, color2),
+                controller.cmdPacket.makeCmdLoopBlockEnd(),
             ]
         else:
             raise RuntimeError('Invalid effect code')
@@ -66,7 +71,6 @@ def masterSet(zonesCode, effect, color1, speed=200, color2=(0, 0, 0)):
         controller.waitUntilControllerReady()
 
         commands += [
-            controller.cmdPacket.makeCmdLoopBlockEnd(),
             controller.cmdPacket.makeCmdTransmitExecute(),
         ]
         controller.sendCommands(commands)
