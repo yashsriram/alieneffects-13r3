@@ -115,7 +115,7 @@ class AlienwareController:
                 zoneNames.append(zoneName)
                 zonesMask &= ~zoneMask
         if zonesMask != 0:
-            zoneNames.append("UNKNOWN({})".format(hex(zonesMask)))
+            zoneNames.append("UNKNOWN_ZONE_CODE({})".format(hex(zonesMask)))
         return ', '.join(zoneNames)
 
     def getPowerStateName(self, powerStateCode):
