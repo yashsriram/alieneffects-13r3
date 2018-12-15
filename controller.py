@@ -7,7 +7,8 @@ from usbdriver import AlienwareUSBDriver
 class AlienwareController:
     # Speed capabilities
     # The higher the number, the slower the speed of blink/morph actions
-    # The min speed is selected by trial and error as the lowest value that won't result in strange blink/morph behaviour.
+    # The min speed is selected by trial and error
+    #   as the lowest value that won't result in strange blink/morph behaviour.
     DEFAULT_SPEED = 200
     MIN_SPEED = 50
 
@@ -106,11 +107,12 @@ class AlienwareController:
 
         self.cmdPktManager = AlienwareCommandPacketManager()
 
-        self.driver = AlienwareUSBDriver(self.vendorId, self.productId, self.cmdPktManager.PACKET_LENGTH)
+        self.driver = AlienwareUSBDriver(self.vendorId, self.productId)
 
     def getStatus(self):
         pkt = self.cmdPktManager.makeCmdGetStatus()
-        logging.debug("writing command: {}".format(self.pktToString(pkt)))
+        logging.debug("writing command: {}".format(pkt))
+        logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
         response = self.driver.readPacket()
         isReady = response[0] == self.cmdPktManager.STATUS_READY
@@ -122,7 +124,8 @@ class AlienwareController:
 
     def reset(self, resetCode):
         pkt = self.cmdPktManager.makeCmdReset(resetCode)
-        logging.debug("writing command: {}".format(self.pktToString(pkt)))
+        logging.debug("writing command: {}".format(pkt))
+        logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
 
     def waitUntilControllerReady(self):
@@ -142,7 +145,8 @@ class AlienwareController:
 
     def sendCommands(self, cmds):
         for cmd in cmds:
-            logging.debug("writing command: {}".format(self.pktToString(cmd)))
+            logging.debug("writing command: {}".format(cmd))
+            logging.debug("description: {}".format(self.pktToString(cmd)))
             self.driver.writePacket(cmd)
 
     def pktToString(self, pkt_bytes):
@@ -160,14 +164,14 @@ class AlienwareController:
         return ', '.join(zoneNames)
 
     def getStateName(self, state):
-        """ Given a state number, return a string state name """
+        """ Given a state number, return a string state name"""
         for state_name in self.stateMap:
             if self.stateMap[state_name] == state:
                 return state_name
         return "UNKNOWN"
 
     def getResetTypeName(self, num):
-        """ Given a reset number, return a string reset name """
+        """ Given a reset number, return a string reset name"""
         if num in list(self.resetTypes.keys()):
             return self.resetTypes[num]
         else:

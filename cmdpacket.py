@@ -18,8 +18,6 @@ class AlienwareCommandPacketManager:
     STATUS_READY = 0x10
     STATUS_UNKNOWN_COMMAND = 0x12
 
-    PACKET_LENGTH = 12
-
     def __init__(self):
         self.commandParsers = {
             self.CMD_SET_MORPH_COLOUR: self._parseCmdSetMorphColour,
