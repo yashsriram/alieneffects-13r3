@@ -4,7 +4,7 @@ import usb
 from usb import USBError
 
 
-class AlienwareUSBDriver(object):
+class AlienwareUSBDriver:
     """Provides low level acquire-release, read-write access to an USB controller"""
 
     OUT_BM_REQUEST_TYPE = 0x21

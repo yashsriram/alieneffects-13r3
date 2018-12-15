@@ -43,7 +43,7 @@ Commands can be passed using control transfers of USB protocol.
 | Execute |  2 5 0 0 0 0 0 0 0 0 0 0 | S : Sequence ID, Z : Zone | This must be called at the end. Start executing color sequences | 
 | Save next command |  2 8 m 0 0 0 0 0 0 0 0 0 | m : mode, m=01: Initial State m=2: Plugged in - Sleep; Only the power-button works in this mode? m=5: Plugged in - Normal m=6: Plugged in - Charging m=7: On Battery - Sleep m=8: On Battery - Normal m=9: On Battery - Low | Save the next command to the specified mode. Must be followed by an Action or Loop | 
 | Save all |  2 9 0 0 0 0 0 0 0 0 0 0 |  | Save slots permanently. If this command is not called, data slots will be lost on reboot |
-| Tempo |  2 9 e t t 0 0 0 0 0 0 0 | t: tempo | AlienFX sets this value between 00:1e ~ 03:ae. |
+| Tempo |  2 e t t 0 0 0 0 0 0 0 0 | t: tempo | AlienFX sets this value between 00:1e ~ 03:ae. |
 
 # Zone codes
 

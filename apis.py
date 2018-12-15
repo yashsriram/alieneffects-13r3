@@ -52,13 +52,13 @@ def masterSet(zonesCode, effect, color1, speed=200, color2=(0, 0, 0)):
             ]
         elif effect == AlienwareController.EFFECT_BLINK_COLOR:
             commands = [
-                controller.cmdPktManager.makeCmdSetSpeed(speed),
+                controller.cmdPktManager.makeCmdSetTempo(speed),
                 controller.cmdPktManager.makeCmdSetBlinkColour(1, zonesCode, color1),
                 controller.cmdPktManager.makeCmdLoopSequence(),
             ]
         elif effect == AlienwareController.EFFECT_MORPH_COLOR:
             commands = [
-                controller.cmdPktManager.makeCmdSetSpeed(speed),
+                controller.cmdPktManager.makeCmdSetTempo(speed),
                 controller.cmdPktManager.makeCmdSetMorphColour(1, zonesCode, color1, color2),
                 controller.cmdPktManager.makeCmdLoopSequence(),
             ]

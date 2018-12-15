@@ -1,4 +1,4 @@
-class AlienwareCommandPacketManager(object):
+class AlienwareCommandPacketManager:
     """Provides facilities to create and parse command packets"""
 
     # Command codes
@@ -11,7 +11,7 @@ class AlienwareCommandPacketManager(object):
     CMD_RESET = 0x7
     CMD_SAVE_NEXT = 0x8
     CMD_SAVE = 0x9
-    CMD_SET_SPEED = 0xe
+    CMD_SET_TEMPO = 0xe
 
     # Status codes
     STATUS_BUSY = 0x11
@@ -31,18 +31,17 @@ class AlienwareCommandPacketManager(object):
             self.CMD_RESET: self._parseCmdReset,
             self.CMD_SAVE_NEXT: self._parseCmdSaveNext,
             self.CMD_SAVE: self._parseCmdSave,
-            self.CMD_SET_SPEED: self._parseCmdSetSpeed
+            self.CMD_SET_TEMPO: self._parseCmdSetTempo
         }
 
     def pktToString(self, pkt, controller):
         """ Return a human readable string representation of a command packet"""
         try:
             cmd = pkt[1]
-            args = {"pkt": pkt, "controller": controller}
             if cmd in list(self.commandParsers.keys()):
-                return self.commandParsers[cmd](args)
+                return self.commandParsers[cmd](pkt, controller)
             else:
-                return self._parseCmdUnknown(args)
+                return self._parseCmdUnknown(pkt, controller)
         except Exception as e:
             print(e)
 
@@ -64,12 +63,7 @@ class AlienwareCommandPacketManager(object):
         return red, green, blue
 
     @classmethod
-    def _parseCmdSetMorphColour(cls, args):
-        """ Parse a packet containing the "set morph colour" command and
-        return it as a human readable string.
-        """
-        pkt = args["pkt"]
-        controller = args["controller"]
+    def _parseCmdSetMorphColour(cls, pkt, controller):
         (red1, green1, blue1), (red2, green2, blue2) = (cls._unpackColourPair(pkt[6:12]))
         msg = "SET_MORPH_COLOUR: "
         msg += "SEQUENCE: {}".format(pkt[2])
@@ -79,12 +73,7 @@ class AlienwareCommandPacketManager(object):
         return msg
 
     @classmethod
-    def _parseCmdSetBlinkColour(cls, args):
-        """ Parse a packet containing the "set blink colour" command and
-        return it as a human readable string.
-        """
-        pkt = args["pkt"]
-        controller = args["controller"]
+    def _parseCmdSetBlinkColour(cls, pkt, controller):
         (red, green, blue) = cls._unpackColour(pkt[6:9])
         msg = "SET_BLINK_COLOUR: "
         msg += "SEQUENCE: {}".format(pkt[2])
@@ -93,12 +82,7 @@ class AlienwareCommandPacketManager(object):
         return msg
 
     @classmethod
-    def _parseCmdSetColour(cls, args):
-        """ Parse a packet containing the "set colour" command and
-        return it as a human readable string.
-        """
-        pkt = args["pkt"]
-        controller = args["controller"]
+    def _parseCmdSetColour(cls, pkt, controller):
         (red, green, blue) = cls._unpackColour(pkt[6:8])
         msg = "SET_COLOUR: "
         msg += "SEQUENCE: {}".format(pkt[2])
@@ -107,63 +91,35 @@ class AlienwareCommandPacketManager(object):
         return msg
 
     @classmethod
-    def _parseCmdLoopSequence(cls, args):
-        """ Parse a packet containing the "loop sequence" command and
-        return it as a human readable string.
-        """
+    def _parseCmdLoopSequence(cls, pkt, controller):
         return "LOOP_SEQUENCE"
 
     @classmethod
-    def _parseCmdTransmitExecute(cls, args):
-        """ Parse a packet containing the "transmit execute" command and
-        return it as a human readable string.
-        """
+    def _parseCmdTransmitExecute(cls, pkt, controller):
         return "TRANSMIT_EXECUTE"
 
     @classmethod
-    def _parseCmdGetStatus(cls, args):
-        """ Parse a packet containing the "get status" command and
-        return it as a human readable string.
-        """
+    def _parseCmdGetStatus(cls, pkt, controller):
         return "GET_STATUS"
 
     @classmethod
-    def _parseCmdReset(cls, args):
-        """ Parse a packet containing the "reset" command and
-        return it as a human readable string.
-        """
-        pkt = args["pkt"]
-        controller = args["controller"]
+    def _parseCmdReset(cls, pkt, controller):
         return "RESET: {}".format(controller.getResetTypeName(pkt[2]))
 
     @classmethod
-    def _parseCmdSaveNext(cls, args):
-        """ Parse a packet containing the "save next" command and
-        return it as a human readable string.
-        """
-        pkt = args["pkt"]
-        controller = args["controller"]
+    def _parseCmdSaveNext(cls, pkt, controller):
         return "SAVE_NEXT: STATE {}".format(controller.getStateName(pkt[2]))
 
     @classmethod
-    def _parseCmdSave(cls, args):
-        """ Parse a packet containing the "save" command and
-        return it as a human readable string.
-        """
+    def _parseCmdSave(cls, pkt, controller):
         return "SAVE"
 
     @classmethod
-    def _parseCmdSetSpeed(cls, args):
-        """ Parse a packet containing the "set speed" command and
-        return it as a human readable string.
-        """
-        pkt = args["pkt"]
-        return "SET_SPEED: {}".format(hex((pkt[2] << 8) + pkt[3]))
+    def _parseCmdSetTempo(cls, pkt, controller):
+        return "SET_TEMPO: {} ms".format((pkt[2] << 8) + pkt[3])
 
     @classmethod
-    def _parseCmdUnknown(cls, args):
-        """ Return a string description an unknown command packet"""
-        pkt = args["pkt"]
+    def _parseCmdUnknown(cls, pkt, controller):
         return "UNKNOWN COMMAND : {} IN PACKET {}".format(pkt[1], pkt)
 
     @staticmethod
@@ -245,12 +201,12 @@ class AlienwareCommandPacketManager(object):
         return pkt
 
     @classmethod
-    def makeCmdSetSpeed(cls, speed):
-        pkt = [0x02, cls.CMD_SET_SPEED, 0,
+    def makeCmdSetTempo(cls, tempo):
+        pkt = [0x02, cls.CMD_SET_TEMPO, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
-        pkt[2:4] = [(speed & 0xff00) >> 8, speed & 0xff]
+        pkt[2:4] = [(tempo & 0xff00) >> 8, tempo & 0xff]
         return pkt
 
     @classmethod
