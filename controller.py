@@ -1,6 +1,6 @@
 import logging
 
-from cmdpacket import AlienwareCommandPacketManager
+from cmdpktmanager import AlienwareCommandPacketManager
 from usbdriver import AlienwareUSBDriver
 
 
@@ -110,7 +110,7 @@ class AlienwareController:
         self.driver = AlienwareUSBDriver(self.vendorId, self.productId)
 
     def getStatus(self):
-        pkt = self.cmdPktManager.makeCmdGetStatus()
+        pkt = self.cmdPktManager.makeGetStatusCmd()
         logging.debug("writing command: {}".format(pkt))
         logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
@@ -123,7 +123,7 @@ class AlienwareController:
         return isReady
 
     def reset(self, resetCode):
-        pkt = self.cmdPktManager.makeCmdReset(resetCode)
+        pkt = self.cmdPktManager.makeResetCmd(resetCode)
         logging.debug("writing command: {}".format(pkt))
         logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)

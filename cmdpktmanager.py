@@ -2,11 +2,11 @@ class AlienwareCommandPacketManager:
     """Provides facilities to create and parse command packets"""
 
     # Command codes
-    CMD_SET_MORPH_COLOUR = 0x1
-    CMD_SET_BLINK_COLOUR = 0x2
+    CMD_MORPH_COLOUR = 0x1
+    CMD_BLINK_COLOUR = 0x2
     CMD_SET_COLOUR = 0x3
     CMD_LOOP_SEQUENCE = 0x4
-    CMD_TRANSMIT_EXECUTE = 0x5
+    CMD_EXECUTE = 0x5
     CMD_GET_STATUS = 0x6
     CMD_RESET = 0x7
     CMD_SAVE_NEXT = 0x8
@@ -20,11 +20,11 @@ class AlienwareCommandPacketManager:
 
     def __init__(self):
         self.commandParsers = {
-            self.CMD_SET_MORPH_COLOUR: self._parseCmdSetMorphColour,
-            self.CMD_SET_BLINK_COLOUR: self._parseCmdSetBlinkColour,
+            self.CMD_MORPH_COLOUR: self._parseCmdMorphColour,
+            self.CMD_BLINK_COLOUR: self._parseCmdBlinkColour,
             self.CMD_SET_COLOUR: self._parseCmdSetColour,
             self.CMD_LOOP_SEQUENCE: self._parseCmdLoopSequence,
-            self.CMD_TRANSMIT_EXECUTE: self._parseCmdTransmitExecute,
+            self.CMD_EXECUTE: self._parseCmdExecute,
             self.CMD_GET_STATUS: self._parseCmdGetStatus,
             self.CMD_RESET: self._parseCmdReset,
             self.CMD_SAVE_NEXT: self._parseCmdSaveNext,
@@ -61,17 +61,18 @@ class AlienwareCommandPacketManager:
         return red, green, blue
 
     @classmethod
-    def _parseCmdSetMorphColour(cls, pkt, controller):
+    def _parseCmdMorphColour(cls, pkt, controller):
         (red1, green1, blue1), (red2, green2, blue2) = (cls._unpackColourPair(pkt[6:12]))
-        msg = "SET_MORPH_COLOUR: "
-        msg += "SEQUENCE: {}".format(pkt[2])
-        msg += ", ZONE: {}".format(controller.getZoneName(pkt[3:6]))
-        msg += ", COLORS: ({},{},{})-({},{},{})".format(
-            red1, green1, blue1, red2, green2, blue2)
-        return msg
+        msg = [
+            "\n\tZONE: {}".format(controller.getZoneName(pkt[3:6])),
+            "SEQUENCE: {}".format(pkt[2]),
+            "EFFECT: SET_MORPH_COLOUR",
+            "COLORS: ({},{},{})-({},{},{})".format(red1, green1, blue1, red2, green2, blue2),
+        ]
+        return '\n\t'.join(msg)
 
     @classmethod
-    def _parseCmdSetBlinkColour(cls, pkt, controller):
+    def _parseCmdBlinkColour(cls, pkt, controller):
         (red, green, blue) = cls._unpackColour(pkt[6:9])
         msg = "SET_BLINK_COLOUR: "
         msg += "SEQUENCE: {}".format(pkt[2])
@@ -93,7 +94,7 @@ class AlienwareCommandPacketManager:
         return "LOOP_SEQUENCE"
 
     @classmethod
-    def _parseCmdTransmitExecute(cls, pkt, controller):
+    def _parseCmdExecute(cls, pkt, controller):
         return "TRANSMIT_EXECUTE"
 
     @classmethod
@@ -141,7 +142,7 @@ class AlienwareCommandPacketManager:
         return colour
 
     @classmethod
-    def makeCmdGetStatus(cls):
+    def makeGetStatusCmd(cls):
         pkt = [0x02, cls.CMD_GET_STATUS, 0,
                0, 0, 0,
                0, 0, 0,
@@ -149,7 +150,7 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdReset(cls, reset_type):
+    def makeResetCmd(cls, reset_type):
         pkt = [0x02, cls.CMD_RESET, 0,
                0, 0, 0,
                0, 0, 0,
@@ -158,8 +159,8 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdSetMorphColour(cls, sequence, zone, colour1, colour2):
-        pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0,
+    def makeMorphColourCmd(cls, sequence, zone, colour1, colour2):
+        pkt = [0x02, cls.CMD_MORPH_COLOUR, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -169,8 +170,8 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdSetBlinkColour(cls, sequence, zone, colour):
-        pkt = [0x02, cls.CMD_SET_BLINK_COLOUR, 0,
+    def makeBlinkColourCmd(cls, sequence, zone, colour):
+        pkt = [0x02, cls.CMD_BLINK_COLOUR, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -180,7 +181,7 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdSetColour(cls, sequence, zone, colour):
+    def makeSetColourCmd(cls, sequence, zone, colour):
         pkt = [0x02, cls.CMD_SET_COLOUR, 0,
                0, 0, 0,
                0, 0, 0,
@@ -191,7 +192,7 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdLoopSequence(cls):
+    def makeLoopSequenceCmd(cls):
         pkt = [0x02, cls.CMD_LOOP_SEQUENCE, 0,
                0, 0, 0,
                0, 0, 0,
@@ -199,7 +200,7 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdSetTempo(cls, tempo):
+    def makeSetTempoCmd(cls, tempo):
         pkt = [0x02, cls.CMD_SET_TEMPO, 0,
                0, 0, 0,
                0, 0, 0,
@@ -208,15 +209,15 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdTransmitExecute(cls):
-        pkt = [0x02, cls.CMD_TRANSMIT_EXECUTE, 0,
+    def makeExecuteCmd(cls):
+        pkt = [0x02, cls.CMD_EXECUTE, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
         return pkt
 
     @classmethod
-    def makeCmdSaveNext(cls, state):
+    def makeSaveNextCmd(cls, state):
         pkt = [0x02, cls.CMD_SAVE_NEXT, 0,
                0, 0, 0,
                0, 0, 0,
@@ -225,7 +226,7 @@ class AlienwareCommandPacketManager:
         return pkt
 
     @classmethod
-    def makeCmdSave(cls):
+    def makeSaveCmd(cls):
         pkt = [0x02, cls.CMD_SAVE, 0,
                0, 0, 0,
                0, 0, 0,
