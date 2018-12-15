@@ -36,14 +36,14 @@ class AlienwareController:
     RESET_ALL_LIGHTS_ON = 4
 
     # Zone names
-    ZONE_LEFT_KEYBOARD = "Left Keyboard"
-    ZONE_MIDDLE_LEFT_KEYBOARD = "Middle-left Keyboard"
-    ZONE_MIDDLE_RIGHT_KEYBOARD = "Middle-right Keyboard"
-    ZONE_RIGHT_KEYBOARD = "Right Keyboard"
-    ZONE_ALIEN_HEAD = "Alien Head"
-    ZONE_LOGO = "Logo"
-    ZONE_TOUCH_PAD = "Touchpad"
-    ZONE_POWER_BUTTON = "Power Button"
+    ZONE_LEFT_KEYBOARD = "LeftKeyboard"
+    ZONE_MIDDLE_LEFT_KEYBOARD = "MiddleLeftKeyboard"
+    ZONE_MIDDLE_RIGHT_KEYBOARD = "MiddleRightKeyboard"
+    ZONE_RIGHT_KEYBOARD = "RightKeyboard"
+    ZONE_ALIEN_HEAD = "AlienHead"
+    ZONE_LOGO = "AlienwareLogo"
+    ZONE_TOUCH_PAD = "TouchPad"
+    ZONE_POWER_BUTTON = "PowerButton"
 
     # State names
     STATE_BOOT = "Boot"
@@ -149,23 +149,15 @@ class AlienwareController:
         return self.cmdPacket.pktToString(pkt_bytes, self)
 
     def getZoneName(self, pkt):
-        """ Given 3 bytes of a command packet, return a string zone
-            name corresponding to it
-        """
-        zone_mask = (pkt[0] << 16) + (pkt[1] << 8) + pkt[2]
-        zone_name = ""
-        for zone in self.zoneMap:
-            bit_mask = self.zoneMap[zone]
-            if zone_mask & bit_mask:
-                if zone_name != "":
-                    zone_name += ","
-                zone_name += zone
-                zone_mask &= ~bit_mask
-        if zone_mask != 0:
-            if zone_name != "":
-                zone_name += ","
-            zone_name += "UNKNOWN({})".format(hex(zone_mask))
-        return zone_name
+        zonesMask = (pkt[0] << 16) + (pkt[1] << 8) + pkt[2]
+        zoneNames = []
+        for zoneName, zoneMask in self.zoneMap.items():
+            if zonesMask & zoneMask:
+                zoneNames.append(zoneName)
+                zonesMask &= ~zoneMask
+        if zonesMask != 0:
+            zoneNames.append("UNKNOWN({})".format(hex(zonesMask)))
+        return ', '.join(zoneNames)
 
     def getStateName(self, state):
         """ Given a state number, return a string state name """

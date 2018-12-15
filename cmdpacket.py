@@ -9,7 +9,7 @@ class AlienwareCmdPacket(object):
     CMD_SET_MORPH_COLOUR = 0x1
     CMD_SET_BLINK_COLOUR = 0x2
     CMD_SET_COLOUR = 0x3
-    CMD_LOOP_BLOCK_END = 0x4
+    CMD_LOOP_SEQUENCE = 0x4
     CMD_TRANSMIT_EXECUTE = 0x5
     CMD_GET_STATUS = 0x6
     CMD_RESET = 0x7
@@ -31,7 +31,7 @@ class AlienwareCmdPacket(object):
             self.CMD_SET_MORPH_COLOUR: self._parseCmdSetMorphColour,
             self.CMD_SET_BLINK_COLOUR: self._parseCmdSetBlinkColour,
             self.CMD_SET_COLOUR: self._parseCmdSetColour,
-            self.CMD_LOOP_BLOCK_END: self._parseCmdLoopBlockEnd,
+            self.CMD_LOOP_SEQUENCE: self._parseCmdLoopSequence,
             self.CMD_TRANSMIT_EXECUTE: self._parseCmdTransmitExecute,
             self.CMD_GET_STATUS: self._parseCmdGetStatus,
             self.CMD_RESET: self._parseCmdReset,
@@ -54,29 +54,19 @@ class AlienwareCmdPacket(object):
 
     @staticmethod
     def _unpackColourPair(pkt):
-        """ Unpack two colour values from the given packet and return them as a
-        list of two tuples (each colour is a 3-member tuple)
-
-        TODO: i think this ist still bullshit for the newer controller
-        """
-        red1 = hex(pkt[0] >> 4)
-        green1 = hex(pkt[0] & 0xf)
-        blue1 = hex(pkt[1] >> 4)
-        red2 = hex(pkt[1] & 0xf)
-        green2 = hex(pkt[2] >> 4)
-        blue2 = hex(pkt[2] & 0xf)
-        return [(red1, green1, blue1), (red2, green2, blue2)]
+        red1 = pkt[0]
+        green1 = pkt[1]
+        blue1 = pkt[2]
+        red2 = pkt[3]
+        green2 = pkt[4]
+        blue2 = pkt[5]
+        return (red1, green1, blue1), (red2, green2, blue2)
 
     @staticmethod
     def _unpackColour(pkt):
-        """ Unpack a colour value from the given packet and return it as a
-        3-member tuple
-
-        TODO: This mist still be bullshit too
-        """
-        red = hex(pkt[0] >> 4)
-        green = hex(pkt[0] & 0xf)
-        blue = hex(pkt[1] >> 4)
+        red = pkt[0]
+        green = pkt[1]
+        blue = pkt[2]
         return red, green, blue
 
     @classmethod
@@ -86,12 +76,11 @@ class AlienwareCmdPacket(object):
         """
         pkt = args["pkt"]
         controller = args["controller"]
-        [(red1, green1, blue1), (red2, green2, blue2)] = (
-            cls._unpackColourPair(pkt[6:9]))
+        (red1, green1, blue1), (red2, green2, blue2) = (cls._unpackColourPair(pkt[6:12]))
         msg = "SET_MORPH_COLOUR: "
-        msg += "BLOCK: {}".format(pkt[2])
+        msg += "SEQUENCE: {}".format(pkt[2])
         msg += ", ZONE: {}".format(controller.getZoneName(pkt[3:6]))
-        msg += ", ({},{},{})-({},{},{})".format(
+        msg += ", COLORS: ({},{},{})-({},{},{})".format(
             red1, green1, blue1, red2, green2, blue2)
         return msg
 
@@ -102,11 +91,11 @@ class AlienwareCmdPacket(object):
         """
         pkt = args["pkt"]
         controller = args["controller"]
-        (red, green, blue) = cls._unpackColour(pkt[6:8])
+        (red, green, blue) = cls._unpackColour(pkt[6:9])
         msg = "SET_BLINK_COLOUR: "
-        msg += "BLOCK: {}".format(pkt[2])
+        msg += "SEQUENCE: {}".format(pkt[2])
         msg += ", ZONE: {}".format(controller.getZoneName(pkt[3:6]))
-        msg += ", ({},{},{})".format(red, green, blue)
+        msg += ", COLOR: ({},{},{})".format(red, green, blue)
         return msg
 
     @classmethod
@@ -118,17 +107,17 @@ class AlienwareCmdPacket(object):
         controller = args["controller"]
         (red, green, blue) = cls._unpackColour(pkt[6:8])
         msg = "SET_COLOUR: "
-        msg += "BLOCK: {}".format(pkt[2])
+        msg += "SEQUENCE: {}".format(pkt[2])
         msg += ", ZONE: {}".format(controller.getZoneName(pkt[3:6]))
-        msg += ", ({},{},{})".format(red, green, blue)
+        msg += ", COLOR: ({},{},{})".format(red, green, blue)
         return msg
 
     @classmethod
-    def _parseCmdLoopBlockEnd(cls, args):
-        """ Parse a packet containing the "loop block end" command and
+    def _parseCmdLoopSequence(cls, args):
+        """ Parse a packet containing the "loop sequence" command and
         return it as a human readable string.
         """
-        return "LOOP_BLOCK_END"
+        return "LOOP_SEQUENCE"
 
     @classmethod
     def _parseCmdTransmitExecute(cls, args):
@@ -222,41 +211,41 @@ class AlienwareCmdPacket(object):
         return pkt
 
     @classmethod
-    def makeCmdSetMorphColour(cls, block, zone, colour1, colour2):
+    def makeCmdSetMorphColour(cls, sequence, zone, colour1, colour2):
         pkt = [0x02, cls.CMD_SET_MORPH_COLOUR, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
-        pkt[2] = block & 0xff
+        pkt[2] = sequence & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
         pkt[6:12] = cls.validateColourPair(colour1, colour2)
         return pkt
 
     @classmethod
-    def makeCmdSetBlinkColour(cls, block, zone, colour):
+    def makeCmdSetBlinkColour(cls, sequence, zone, colour):
         pkt = [0x02, cls.CMD_SET_BLINK_COLOUR, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
-        pkt[2] = block & 0xff
+        pkt[2] = sequence & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
         pkt[6:9] = cls.validateColor(colour)
         return pkt
 
     @classmethod
-    def makeCmdSetColour(cls, block, zone, colour):
+    def makeCmdSetColour(cls, sequence, zone, colour):
         pkt = [0x02, cls.CMD_SET_COLOUR, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
-        pkt[2] = block & 0xff
+        pkt[2] = sequence & 0xff
         pkt[3:6] = [(zone & 0xff0000) >> 16, (zone & 0xff00) >> 8, zone & 0xff]
         pkt[6:9] = cls.validateColor(colour)
         return pkt
 
     @classmethod
-    def makeCmdLoopBlockEnd(cls):
-        pkt = [0x02, cls.CMD_LOOP_BLOCK_END, 0,
+    def makeCmdLoopSequence(cls):
+        pkt = [0x02, cls.CMD_LOOP_SEQUENCE, 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
