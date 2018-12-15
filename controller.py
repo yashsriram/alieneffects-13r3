@@ -67,10 +67,6 @@ class AlienwareController:
     def __init__(self):
         self.name = "Alienware 13 R3"
 
-        # USB VID and PID
-        self.vendorId = 0x187c
-        self.productId = 0x0529
-
         # map the zone names to their codes
         self.zoneMap = {
             self.ZONE_LEFT_KEYBOARD: self.LEFT_KEYBOARD,
@@ -107,7 +103,7 @@ class AlienwareController:
 
         self.cmdPktManager = AlienwareCommandPacketManager()
 
-        self.driver = AlienwareUSBDriver(self.vendorId, self.productId)
+        self.driver = AlienwareUSBDriver()
 
     def getStatus(self):
         pkt = self.cmdPktManager.makeGetStatusCmd()

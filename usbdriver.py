@@ -7,6 +7,9 @@ from usb import USBError
 class AlienwareUSBDriver:
     """Provides low level acquire, control transfer and release APIs"""
 
+    VENDOR_ID = 0x187c
+    PRODUCT_ID = 0x0529
+
     OUT_BM_REQUEST_TYPE = 0x21
     OUT_B_REQUEST = 0x09
     OUT_W_VALUE = 0x202
@@ -19,9 +22,7 @@ class AlienwareUSBDriver:
 
     PACKET_LENGTH = 12
 
-    def __init__(self, vendorId, productId):
-        self._vendorId = vendorId
-        self._productId = productId
+    def __init__(self):
         self._control_taken = False
         self._device = None
 
@@ -30,11 +31,11 @@ class AlienwareUSBDriver:
         if self._control_taken:
             return
 
-        self._device = usb.core.find(idVendor=self._vendorId, idProduct=self._productId)
+        self._device = usb.core.find(idVendor=AlienwareUSBDriver.VENDOR_ID, idProduct=AlienwareUSBDriver.PRODUCT_ID)
 
         if self._device is None:
             logging.error("ERROR: No AlienFX USB controller found; tried VID {}, PID {}"
-                          .format(self._vendorId, self._productId))
+                          .format(AlienwareUSBDriver.VENDOR_ID, AlienwareUSBDriver.PRODUCT_ID))
 
         try:
             self._device.detach_kernel_driver(0)
@@ -52,7 +53,8 @@ class AlienwareUSBDriver:
             logging.error("Cant claim interface. Error : {}".format(exc.strerror))
 
         self._control_taken = True
-        logging.debug("USB device acquired, VID={}, PID={}".format(hex(self._vendorId), hex(self._productId)))
+        logging.debug("USB device acquired, VID={}, PID={}".format(hex(AlienwareUSBDriver.VENDOR_ID),
+                                                                   hex(AlienwareUSBDriver.PRODUCT_ID)))
 
     def release(self):
         """ Release control of the USB controller."""
@@ -70,7 +72,8 @@ class AlienwareUSBDriver:
             logging.error("Cant re-attach. Error : {}".format(exc.strerror))
 
         self._control_taken = False
-        logging.debug("USB device released, VID={}, PID={}".format(hex(self._vendorId), hex(self._productId)))
+        logging.debug("USB device released, VID={}, PID={}".format(hex(AlienwareUSBDriver.VENDOR_ID),
+                                                                   hex(AlienwareUSBDriver.PRODUCT_ID)))
 
     def writePacket(self, pkt):
         """ Write the given packet over USB"""
@@ -107,7 +110,7 @@ class AlienwareUSBDriver:
             logging.debug("read: {}, {} bytes".format(pkt, len(pkt)))
             if len(pkt) != AlienwareUSBDriver.PACKET_LENGTH:
                 logging.error("readPacket: intended to read {} of {} bytes but read {} bytes"
-                                .format(pkt, AlienwareUSBDriver.PACKET_LENGTH, len(pkt)))
+                              .format(pkt, AlienwareUSBDriver.PACKET_LENGTH, len(pkt)))
 
             return pkt
         except USBError as exc:
