@@ -111,7 +111,7 @@ class AlienwareCommandPacketManager:
 
     @classmethod
     def _parseCmdSaveNext(cls, pkt, controller):
-        return "SAVE_NEXT: STATE {}".format(controller.getStateName(pkt[2]))
+        return "SAVE_NEXT: STATE {}".format(controller.getPowerStateName(pkt[2]))
 
     @classmethod
     def _parseCmdSave(cls, pkt, controller):
