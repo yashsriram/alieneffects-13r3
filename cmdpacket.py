@@ -1,9 +1,5 @@
-class AlienwareCmdPacket(object):
-    """
-    Provides facilities to parse and create packets.
-    This class provides methods to parse binary packets into human readable strings.
-    It also provides methods to create binary packets.
-    """
+class AlienwareCommandPacketManager(object):
+    """Provides facilities to create and parse command packets"""
 
     # Command codes
     CMD_SET_MORPH_COLOUR = 0x1
@@ -24,8 +20,6 @@ class AlienwareCmdPacket(object):
 
     PACKET_LENGTH = 12
 
-    commandParsers = {}
-
     def __init__(self):
         self.commandParsers = {
             self.CMD_SET_MORPH_COLOUR: self._parseCmdSetMorphColour,
@@ -40,11 +34,11 @@ class AlienwareCmdPacket(object):
             self.CMD_SET_SPEED: self._parseCmdSetSpeed
         }
 
-    def pktToString(self, pkt_bytes, controller):
+    def pktToString(self, pkt, controller):
         """ Return a human readable string representation of a command packet"""
         try:
-            cmd = pkt_bytes[1]
-            args = {"pkt": pkt_bytes, "controller": controller}
+            cmd = pkt[1]
+            args = {"pkt": pkt, "controller": controller}
             if cmd in list(self.commandParsers.keys()):
                 return self.commandParsers[cmd](args)
             else:
@@ -168,8 +162,7 @@ class AlienwareCmdPacket(object):
 
     @classmethod
     def _parseCmdUnknown(cls, args):
-        """ Return a string reporting an unknown command packet.
-        """
+        """ Return a string description an unknown command packet"""
         pkt = args["pkt"]
         return "UNKNOWN COMMAND : {} IN PACKET {}".format(pkt[1], pkt)
 

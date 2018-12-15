@@ -1,6 +1,6 @@
 import logging
 
-from cmdpacket import AlienwareCmdPacket
+from cmdpacket import AlienwareCommandPacketManager
 from usbdriver import AlienwareUSBDriver
 
 
@@ -104,16 +104,16 @@ class AlienwareController:
             self.STATE_BATTERY_CRITICAL: self.BATTERY_CRITICAL
         }
 
-        self.cmdPacket = AlienwareCmdPacket()
+        self.cmdPktManager = AlienwareCommandPacketManager()
 
-        self.driver = AlienwareUSBDriver(self.vendorId, self.productId, self.cmdPacket.PACKET_LENGTH)
+        self.driver = AlienwareUSBDriver(self.vendorId, self.productId, self.cmdPktManager.PACKET_LENGTH)
 
     def getStatus(self):
-        pkt = self.cmdPacket.makeCmdGetStatus()
+        pkt = self.cmdPktManager.makeCmdGetStatus()
         logging.debug("writing command: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
         response = self.driver.readPacket()
-        isReady = response[0] == self.cmdPacket.STATUS_READY
+        isReady = response[0] == self.cmdPktManager.STATUS_READY
         if isReady:
             logging.debug('Pinged, STATUS_READY')
         else:
@@ -121,7 +121,7 @@ class AlienwareController:
         return isReady
 
     def reset(self, resetCode):
-        pkt = self.cmdPacket.makeCmdReset(resetCode)
+        pkt = self.cmdPktManager.makeCmdReset(resetCode)
         logging.debug("writing command: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
 
@@ -146,7 +146,7 @@ class AlienwareController:
             self.driver.writePacket(cmd)
 
     def pktToString(self, pkt_bytes):
-        return self.cmdPacket.pktToString(pkt_bytes, self)
+        return self.cmdPktManager.pktToString(pkt_bytes, self)
 
     def getZoneName(self, pkt):
         zonesMask = (pkt[0] << 16) + (pkt[1] << 8) + pkt[2]
