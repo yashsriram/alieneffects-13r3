@@ -66,7 +66,7 @@ class AlienwareCommandPacketManager:
         msg = [
             "\n\tZONE: {}".format(controller.getZoneName(pkt[3:6])),
             "SEQUENCE: {}".format(pkt[2]),
-            "EFFECT: SET_MORPH_COLOUR",
+            "EFFECT: MORPH_COLOUR",
             "COLORS: ({},{},{})-({},{},{})".format(red1, green1, blue1, red2, green2, blue2),
         ]
         return '\n\t'.join(msg)
@@ -74,20 +74,24 @@ class AlienwareCommandPacketManager:
     @classmethod
     def _parseCmdBlinkColour(cls, pkt, controller):
         (red, green, blue) = cls._unpackColour(pkt[6:9])
-        msg = "SET_BLINK_COLOUR: "
-        msg += "SEQUENCE: {}".format(pkt[2])
-        msg += ", ZONE: {}".format(controller.getZoneName(pkt[3:6]))
-        msg += ", COLOR: ({},{},{})".format(red, green, blue)
-        return msg
+        msg = [
+            "\n\tZONE: {}".format(controller.getZoneName(pkt[3:6])),
+            "SEQUENCE: {}".format(pkt[2]),
+            "EFFECT: BLINK_COLOUR",
+            "COLOR: ({},{},{})".format(red, green, blue),
+        ]
+        return '\n\t'.join(msg)
 
     @classmethod
     def _parseCmdSetColour(cls, pkt, controller):
-        (red, green, blue) = cls._unpackColour(pkt[6:8])
-        msg = "SET_COLOUR: "
-        msg += "SEQUENCE: {}".format(pkt[2])
-        msg += ", ZONE: {}".format(controller.getZoneName(pkt[3:6]))
-        msg += ", COLOR: ({},{},{})".format(red, green, blue)
-        return msg
+        (red, green, blue) = cls._unpackColour(pkt[6:9])
+        msg = [
+            "\n\tZONE: {}".format(controller.getZoneName(pkt[3:6])),
+            "SEQUENCE: {}".format(pkt[2]),
+            "EFFECT: SET_COLOUR",
+            "COLOR: ({},{},{})".format(red, green, blue),
+        ]
+        return '\n\t'.join(msg)
 
     @classmethod
     def _parseCmdLoopSequence(cls, pkt, controller):
