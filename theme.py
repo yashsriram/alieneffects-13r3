@@ -3,8 +3,6 @@ from controller import AlienwareController as AC
 from random import randint
 import logging
 
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
-
 
 def generateRandomColor():
     return [randint(0, 255), randint(0, 255), randint(0, 255)]
@@ -98,7 +96,3 @@ class AlienwareTheme:
 
     def __str__(self):
         return str(self.theme)
-
-
-theme = AlienwareTheme("themes/moon.json")
-theme.apply()
