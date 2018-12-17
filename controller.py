@@ -1,6 +1,5 @@
 import logging
 
-from cmdpktmanager import AlienwareCommandPacketManager
 from usbdriver import AlienwareUSBDriver
 
 
@@ -8,69 +7,99 @@ class AlienwareController:
     # Lower the tempo, faster the blink/morph actions
     # The min tempo is selected by trial and error
     #   as the lowest value that won't result in strange blink/morph behaviour.
-    DEFAULT_TEMPO = 200
     MIN_TEMPO = 50
 
-    # Reset type names
-    RESET_ALL_LIGHTS_OFF = "RESET_ALL_LIGHTS_OFF"
-    RESET_ALL_LIGHTS_ON = "RESET_ALL_LIGHTS_ON"
+    class Reset:
+        ALL_LIGHTS_OFF = "RESET_ALL_LIGHTS_OFF"
+        ALL_LIGHTS_ON = "RESET_ALL_LIGHTS_ON"
 
-    RESET_TYPE_CODES = {
-        RESET_ALL_LIGHTS_OFF: 3,
-        RESET_ALL_LIGHTS_ON: 4
-    }
+        CODES = {
+            ALL_LIGHTS_OFF: 3,
+            ALL_LIGHTS_ON: 4
+        }
 
-    # Zone names
-    LEFT_KEYBOARD = "LEFT_KEYBOARD"
-    MIDDLE_LEFT_KEYBOARD = "MIDDLE_LEFT_KEYBOARD"
-    MIDDLE_RIGHT_KEYBOARD = "MIDDLE_RIGHT_KEYBOARD"
-    RIGHT_KEYBOARD = "RIGHT_KEYBOARD"
-    ALIEN_HEAD = "ALIEN_HEAD"
-    ALIENWARE_LOGO = "ALIENWARE_LOGO"
-    TOUCH_PAD = "TOUCH_PAD"
-    POWER_BUTTON = "POWER_BUTTON"
+        def __init__(self):
+            pass
 
-    ZONE_CODES = {
-        LEFT_KEYBOARD: 0x0008,
-        MIDDLE_LEFT_KEYBOARD: 0x0004,
-        MIDDLE_RIGHT_KEYBOARD: 0x0002,
-        RIGHT_KEYBOARD: 0x0001,
-        ALIEN_HEAD: 0x0020,
-        ALIENWARE_LOGO: 0x0040,
-        TOUCH_PAD: 0x0080,
-        POWER_BUTTON: 0x0100,
-    }
+    class Zones:
+        LEFT_KEYBOARD = "LEFT_KEYBOARD"
+        MIDDLE_LEFT_KEYBOARD = "MIDDLE_LEFT_KEYBOARD"
+        MIDDLE_RIGHT_KEYBOARD = "MIDDLE_RIGHT_KEYBOARD"
+        RIGHT_KEYBOARD = "RIGHT_KEYBOARD"
+        ALIEN_HEAD = "ALIEN_HEAD"
+        ALIENWARE_LOGO = "ALIENWARE_LOGO"
+        TOUCH_PAD = "TOUCH_PAD"
+        POWER_BUTTON = "POWER_BUTTON"
 
-    # Power state names
-    BOOT = "BOOT"
-    AC_SLEEP = "AC_SLEEP"
-    AC_CHARGED = "AC_CHARGED"
-    AC_CHARGING = "AC_CHARGING"
-    BATTERY_SLEEP = "BATTERY_SLEEP"
-    BATTERY_ON = "BATTERY_ON"
-    BATTERY_CRITICAL = "BATTERY_CRITICAL"
+        CODES = {
+            LEFT_KEYBOARD: 0x0008,
+            MIDDLE_LEFT_KEYBOARD: 0x0004,
+            MIDDLE_RIGHT_KEYBOARD: 0x0002,
+            RIGHT_KEYBOARD: 0x0001,
+            ALIEN_HEAD: 0x0020,
+            ALIENWARE_LOGO: 0x0040,
+            TOUCH_PAD: 0x0080,
+            POWER_BUTTON: 0x0100,
+        }
 
-    POWER_STATE_CODES = {
-        BOOT: 1,
-        AC_SLEEP: 2,
-        AC_CHARGED: 5,
-        AC_CHARGING: 6,
-        BATTERY_SLEEP: 7,
-        BATTERY_ON: 8,
-        BATTERY_CRITICAL: 9
-    }
+    class PowerStates:
+        BOOT = "BOOT"
+        AC_SLEEP = "AC_SLEEP"
+        AC_CHARGED = "AC_CHARGED"
+        AC_CHARGING = "AC_CHARGING"
+        BATTERY_SLEEP = "BATTERY_SLEEP"
+        BATTERY_ON = "BATTERY_ON"
+        BATTERY_CRITICAL = "BATTERY_CRITICAL"
+
+        CODES = {
+            BOOT: 1,
+            AC_SLEEP: 2,
+            AC_CHARGED: 5,
+            AC_CHARGING: 6,
+            BATTERY_SLEEP: 7,
+            BATTERY_ON: 8,
+            BATTERY_CRITICAL: 9
+        }
+
+    class Commands:
+        MORPH_COLOUR = 0x1
+        BLINK_COLOUR = 0x2
+        SET_COLOUR = 0x3
+        LOOP_SEQUENCE = 0x4
+        EXECUTE = 0x5
+        GET_STATUS = 0x6
+        RESET = 0x7
+        SAVE_NEXT = 0x8
+        SAVE = 0x9
+        SET_TEMPO = 0xe
+
+    class Status:
+        STATUS_BUSY = 0x11
+        STATUS_READY = 0x10
+        STATUS_UNKNOWN_COMMAND = 0x12
 
     def __init__(self):
-        self.cmdPktManager = AlienwareCommandPacketManager()
+        self.commandParsers = {
+            self.Commands.MORPH_COLOUR: self._parseCmdMorphColour,
+            self.Commands.BLINK_COLOUR: self._parseCmdBlinkColour,
+            self.Commands.SET_COLOUR: self._parseCmdSetColour,
+            self.Commands.LOOP_SEQUENCE: self._parseCmdLoopSequence,
+            self.Commands.EXECUTE: self._parseCmdExecute,
+            self.Commands.GET_STATUS: self._parseCmdGetStatus,
+            self.Commands.RESET: self._parseCmdReset,
+            self.Commands.SAVE_NEXT: self._parseCmdSaveNext,
+            self.Commands.SAVE: self._parseCmdSave,
+            self.Commands.SET_TEMPO: self._parseCmdSetTempo
+        }
         self.driver = AlienwareUSBDriver()
 
     def getStatus(self):
-        pkt = self.cmdPktManager.makeGetStatusCmd()
+        pkt = self.makeGetStatusCmd()
         logging.debug("writing command: {}".format(pkt))
         logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
         response = self.driver.readPacket()
-        isReady = response[0] == self.cmdPktManager.STATUS_READY
+        isReady = response[0] == self.Status.STATUS_READY
         if isReady:
             logging.debug('Pinged, STATUS_READY')
         else:
@@ -78,7 +107,7 @@ class AlienwareController:
         return isReady
 
     def reset(self, resetCode):
-        pkt = self.cmdPktManager.makeResetCmd(resetCode)
+        pkt = self.makeResetCmd(resetCode)
         logging.debug("writing command: {}".format(pkt))
         logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
@@ -104,13 +133,142 @@ class AlienwareController:
             logging.debug("description: {}".format(self.pktToString(cmd)))
             self.driver.writePacket(cmd)
 
-    def pktToString(self, pkt_bytes):
-        return self.cmdPktManager.pktToString(pkt_bytes, self)
+    # Make command packet methods
+    @staticmethod
+    def _validateColor(colour):
+        for band in colour:
+            if not (isinstance(band, int) and 0 <= band <= 255):
+                raise RuntimeError('Invalid color')
 
+    @classmethod
+    def _validateTempo(cls, tempo):
+        if not (isinstance(tempo, int) and tempo >= cls.MIN_TEMPO):
+            raise RuntimeError('Invalid tempo')
+
+    @staticmethod
+    def _validateZoneCode(zoneCode):
+        if not (isinstance(zoneCode, int) and zoneCode <= 0xffff):
+            raise RuntimeError('Invalid zone code')
+
+    @classmethod
+    def _validateResetCode(cls, resetCode):
+        if not (isinstance(resetCode, int) and resetCode in cls.Reset.CODES.values()):
+            raise RuntimeError('Invalid reset code')
+
+    @classmethod
+    def _validatePowerStateCode(cls, powerStateCode):
+        if not (isinstance(powerStateCode, int) and powerStateCode in cls.PowerStates.CODES.values()):
+            raise RuntimeError('Invalid power state')
+
+    @classmethod
+    def makeGetStatusCmd(cls):
+        pkt = [0x02, cls.Commands.GET_STATUS, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        return pkt
+
+    @classmethod
+    def makeResetCmd(cls, resetCode):
+        cls._validateResetCode(resetCode)
+        pkt = [0x02, cls.Commands.RESET, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        pkt[2] = resetCode & 0xff
+        return pkt
+
+    @classmethod
+    def makeMorphColourCmd(cls, sequence, zoneCode, colour1, colour2):
+        cls._validateZoneCode(zoneCode)
+        cls._validateColor(colour1)
+        cls._validateColor(colour2)
+        pkt = [0x02, cls.Commands.MORPH_COLOUR, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        pkt[2] = sequence & 0xff
+        pkt[3:6] = [(zoneCode & 0xff0000) >> 16, (zoneCode & 0xff00) >> 8, zoneCode & 0xff]
+        (red1, green1, blue1) = colour1
+        (red2, green2, blue2) = colour2
+        pkt[6:12] = [red1, green1, blue1, red2, green2, blue2]
+        return pkt
+
+    @classmethod
+    def makeBlinkColourCmd(cls, sequence, zoneCode, colour):
+        cls._validateZoneCode(zoneCode)
+        cls._validateColor(colour)
+        pkt = [0x02, cls.Commands.BLINK_COLOUR, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        pkt[2] = sequence & 0xff
+        pkt[3:6] = [(zoneCode & 0xff0000) >> 16, (zoneCode & 0xff00) >> 8, zoneCode & 0xff]
+        pkt[6:9] = colour
+        return pkt
+
+    @classmethod
+    def makeSetColourCmd(cls, sequence, zoneCode, colour):
+        cls._validateZoneCode(zoneCode)
+        cls._validateColor(colour)
+        pkt = [0x02, cls.Commands.SET_COLOUR, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        pkt[2] = sequence & 0xff
+        pkt[3:6] = [(zoneCode & 0xff0000) >> 16, (zoneCode & 0xff00) >> 8, zoneCode & 0xff]
+        pkt[6:9] = colour
+        return pkt
+
+    @classmethod
+    def makeLoopSequenceCmd(cls):
+        pkt = [0x02, cls.Commands.LOOP_SEQUENCE, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        return pkt
+
+    @classmethod
+    def makeSetTempoCmd(cls, tempo):
+        cls._validateTempo(tempo)
+        pkt = [0x02, cls.Commands.SET_TEMPO, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        pkt[2:4] = [(tempo & 0xff00) >> 8, tempo & 0xff]
+        return pkt
+
+    @classmethod
+    def makeExecuteCmd(cls):
+        pkt = [0x02, cls.Commands.EXECUTE, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        return pkt
+
+    @classmethod
+    def makeSaveNextCmd(cls, powerStateCode):
+        cls._validatePowerStateCode(powerStateCode)
+        pkt = [0x02, cls.Commands.SAVE_NEXT, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        pkt[2] = powerStateCode & 0xff
+        return pkt
+
+    @classmethod
+    def makeSaveCmd(cls):
+        pkt = [0x02, cls.Commands.SAVE, 0,
+               0, 0, 0,
+               0, 0, 0,
+               0, 0, 0]
+        return pkt
+
+    # Describe command packet methods
     def getZoneName(self, pkt):
         zonesMask = (pkt[0] << 16) + (pkt[1] << 8) + pkt[2]
         zoneNames = []
-        for zoneName, zoneMask in self.ZONE_CODES.items():
+        for zoneName, zoneMask in self.Zones.CODES.items():
             if zonesMask & zoneMask:
                 zoneNames.append(zoneName)
                 zonesMask &= ~zoneMask
@@ -119,15 +277,91 @@ class AlienwareController:
         return ', '.join(zoneNames)
 
     def getPowerStateName(self, powerStateCode):
-        """ Given a power state code, return a string state name"""
-        for name, code in self.POWER_STATE_CODES:
+        for name, code in self.PowerStates.CODES:
             if code == powerStateCode:
                 return name
         return "UNKNOWN_POWER_STATE_CODE"
 
     def getResetTypeName(self, resetCode):
-        """ Given a reset number, return a string reset name"""
-        for name, code in self.RESET_TYPE_CODES.items():
+        for name, code in self.Reset.CODES.items():
             if code == resetCode:
                 return name
         return "UNKNOWN_RESET_CODE"
+
+    def pktToString(self, pkt):
+        cmd = pkt[1]
+        if cmd in list(self.commandParsers.keys()):
+            return self.commandParsers[cmd](pkt)
+        else:
+            return self._parseCmdUnknown(pkt)
+
+    @staticmethod
+    def _unpackColourPair(pkt):
+        red1 = pkt[0]
+        green1 = pkt[1]
+        blue1 = pkt[2]
+        red2 = pkt[3]
+        green2 = pkt[4]
+        blue2 = pkt[5]
+        return (red1, green1, blue1), (red2, green2, blue2)
+
+    @staticmethod
+    def _unpackColour(pkt):
+        red = pkt[0]
+        green = pkt[1]
+        blue = pkt[2]
+        return red, green, blue
+
+    def _parseCmdMorphColour(self, pkt):
+        (red1, green1, blue1), (red2, green2, blue2) = (self._unpackColourPair(pkt[6:12]))
+        msg = [
+            "\n\tZONE: {}".format(self.getZoneName(pkt[3:6])),
+            "SEQUENCE: {}".format(pkt[2]),
+            "EFFECT: MORPH_COLOUR",
+            "COLORS: ({},{},{})-({},{},{})".format(red1, green1, blue1, red2, green2, blue2),
+        ]
+        return '\n\t'.join(msg)
+
+    def _parseCmdBlinkColour(self, pkt):
+        (red, green, blue) = self._unpackColour(pkt[6:9])
+        msg = [
+            "\n\tZONE: {}".format(self.getZoneName(pkt[3:6])),
+            "SEQUENCE: {}".format(pkt[2]),
+            "EFFECT: BLINK_COLOUR",
+            "COLOR: ({},{},{})".format(red, green, blue),
+        ]
+        return '\n\t'.join(msg)
+
+    def _parseCmdSetColour(self, pkt):
+        (red, green, blue) = self._unpackColour(pkt[6:9])
+        msg = [
+            "\n\tZONE: {}".format(self.getZoneName(pkt[3:6])),
+            "SEQUENCE: {}".format(pkt[2]),
+            "EFFECT: SET_COLOUR",
+            "COLOR: ({},{},{})".format(red, green, blue),
+        ]
+        return '\n\t'.join(msg)
+
+    def _parseCmdLoopSequence(self, pkt):
+        return "LOOP_SEQUENCE"
+
+    def _parseCmdExecute(self, pkt):
+        return "TRANSMIT_EXECUTE"
+
+    def _parseCmdGetStatus(self, pkt):
+        return "GET_STATUS"
+
+    def _parseCmdReset(self, pkt):
+        return "RESET: {}".format(self.getResetTypeName(pkt[2]))
+
+    def _parseCmdSaveNext(self, pkt):
+        return "SAVE_NEXT: STATE {}".format(self.getPowerStateName(pkt[2]))
+
+    def _parseCmdSave(self, pkt):
+        return "SAVE"
+
+    def _parseCmdSetTempo(self, pkt):
+        return "SET_TEMPO: {} ms".format((pkt[2] << 8) + pkt[3])
+
+    def _parseCmdUnknown(self, pkt):
+        return "UNKNOWN COMMAND : {} IN PACKET {}".format(pkt[1], pkt)

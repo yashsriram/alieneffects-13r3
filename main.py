@@ -6,8 +6,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
 
 # apis.setAlienheadBacklight(AlienwareController.EFFECT_MORPH_COLOR, (0, 255, 255), speed=500, color2=(255, 0, 0))
 # apis.setAlienwareLogoBacklight(AlienwareController.EFFECT_MORPH_COLOR, (0, 255, 0), speed=300, color2=(255, 0, 0))
-# apis.setTouchpadBacklight(AlienwareController.EFFECT_SET_COLOR, (0, 0, 0), speed=400, color2=(255, 0, 0))
-# apis.setKeyboardBacklight(apis.EFFECT_MORPH_COLOR, (0, 255, 0), speed=400, color2=(255, 0, 0))
+# apis.setTouchpadBacklight(apis.EFFECT_MORPH_COLOR, (0, 0, 0), speed=400, color2=(255, 0, 0))
+apis.setKeyboardBacklight(apis.EFFECT_MORPH_COLOR, (0, 255, 0), speed=400, color2=(255, 0, 0))
 
 # controller = AlienwareController()
 # try:
@@ -33,4 +33,4 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s:%(message)s')
 # finally:
 #     controller.driver.release()
 
-apis.turnOffEverything()
+# apis.turnOffEverything()
