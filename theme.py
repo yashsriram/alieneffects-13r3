@@ -18,10 +18,13 @@ class AlienwareTheme:
 
     def validate(self):
         t = self.theme
+
+        # No need to further validate type for these fields
+        # That validation will be done in AlienwareController class
         validatedTempo = t.get('TEMPO', 200)
         validatedDuration = t.get('DURATION', 10000)
-        validatedZoneCodeSequenceMap = {}
 
+        # Parsing multiple zones separated by |
         zones = t.get('ZONES', {})
         expandedZones = {}
         for zoneNamesConcatenated, value in zones.items():
@@ -30,6 +33,8 @@ class AlienwareTheme:
                 expandedZones[zoneName] = value
         zones = expandedZones
 
+        # Validating sequences
+        validatedZoneCodeSequenceMap = {}
         for name, zoneCode in AC.Zones.CODES.items():
             sequence = zones.get(name, [])
             validatedSequence = []
@@ -48,7 +53,7 @@ class AlienwareTheme:
 
         logging.debug('Theme validation complete')
         logging.debug('Validated tempo = {}ms, Validated duration = {}ms'.format(validatedTempo, validatedDuration))
-        logging.debug('Validated zone sequence map:'.format(validatedZoneCodeSequenceMap))
+        logging.debug('Validated zone sequence map: {}'.format(validatedZoneCodeSequenceMap))
 
         return validatedTempo, validatedDuration, validatedZoneCodeSequenceMap
 
@@ -57,17 +62,12 @@ class AlienwareTheme:
 
         ac = AC()
         try:
-            ac.driver.acquire()
-
-            ac.reset(AC.Reset.CODES[AC.Reset.ALL_LIGHTS_ON])
-            ac.waitUntilControllerReady()
-
+            # prepare commands
             commands = [ac.makeSetTempoCmd(validatedTempo)]
             sequenceId = 0
             for zoneCode, sequence in validatedZoneCodeSequenceMap.items():
                 for effect in sequence:
                     effectName = effect['EFFECT']
-                    print(effectName)
                     if effectName == AC.Commands.SET_COLOR:
                         commands.append(ac.makeSetColorCmd(sequenceId, zoneCode, effect['COLOR']))
                     elif effectName == AC.Commands.BLINK_COLOR:
@@ -81,9 +81,16 @@ class AlienwareTheme:
                 sequenceId += 1
             commands.append(ac.makeExecuteCmd())
 
-            ac.sendCommands(commands)
-
-            ac.waitUntilControllerReady()
+            # send commands
+            if len(commands) > 2:
+                ac.driver.acquire()
+                ac.reset(AC.Reset.CODES[AC.Reset.ALL_LIGHTS_ON])
+                ac.waitUntilControllerReady()
+                ac.sendCommands(commands)
+                ac.waitUntilControllerReady()
+                logging.debug('Theme {} applied\n\twith tempo {} and duration {}'.format(validatedZoneCodeSequenceMap, validatedTempo, validatedDuration))
+            else:
+                logging.debug('Theme {} is semantically empty. So not applying it')
         except Exception as e:
             logging.error('Exception occurred', exc_info=True)
         finally:
