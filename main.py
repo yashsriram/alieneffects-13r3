@@ -2,7 +2,8 @@ from theme import AlienwareTheme
 import logging
 import argparse
 
-logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(levelname)s:%(message)s')
+logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%dth %H:%M:%S:')
 
 # arguments
 parser = argparse.ArgumentParser()

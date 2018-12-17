@@ -1,7 +1,8 @@
 import json
-from controller import AlienwareController as AC
-from random import randint
 import logging
+from random import randint
+
+from controller import AlienwareController as AC
 
 
 def generateRandomColor():
@@ -86,7 +87,9 @@ class AlienwareTheme:
                 ac.waitUntilControllerReady()
                 ac.sendCommands(commands)
                 ac.waitUntilControllerReady()
-                logging.debug('Theme {} applied\n\twith tempo {} and duration {}'.format(validatedZoneCodeSequenceMap, validatedTempo, validatedDuration))
+                logging.debug('Theme {} applied\n\twith tempo {} and duration {}'.format(validatedZoneCodeSequenceMap,
+                                                                                         validatedTempo,
+                                                                                         validatedDuration))
             else:
                 logging.debug('Theme {} is semantically empty. So not applying it')
         except Exception as e:
