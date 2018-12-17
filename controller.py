@@ -62,34 +62,48 @@ class AlienwareController:
         }
 
     class Commands:
-        MORPH_COLOUR = 0x1
-        BLINK_COLOUR = 0x2
-        SET_COLOUR = 0x3
-        LOOP_SEQUENCE = 0x4
-        EXECUTE = 0x5
-        GET_STATUS = 0x6
-        RESET = 0x7
-        SAVE_NEXT = 0x8
-        SAVE = 0x9
-        SET_TEMPO = 0xe
+        MORPH_COLOUR = 'MORPH_COLOUR'
+        BLINK_COLOUR = 'BLINK_COLOUR'
+        SET_COLOUR = 'SET_COLOUR'
+        LOOP_SEQUENCE = 'LOOP_SEQUENCE'
+        EXECUTE = 'EXECUTE'
+        GET_STATUS = 'GET_STATUS'
+        RESET = 'RESET'
+        SAVE_NEXT = 'SAVE_NEXT'
+        SAVE = 'SAVE'
+        SET_TEMPO = 'SET_TEMPO'
+
+        CODES = {
+            MORPH_COLOUR: 0x1,
+            BLINK_COLOUR: 0x2,
+            SET_COLOUR: 0x3,
+            LOOP_SEQUENCE: 0x4,
+            EXECUTE: 0x5,
+            GET_STATUS: 0x6,
+            RESET: 0x7,
+            SAVE_NEXT: 0x8,
+            SAVE: 0x9,
+            SET_TEMPO: 0xe
+        }
 
     class Status:
-        STATUS_BUSY = 0x11
-        STATUS_READY = 0x10
-        STATUS_UNKNOWN_COMMAND = 0x12
+        BUSY = 0x11
+        READY = 0x10
+        UNKNOWN = 0x12
 
     def __init__(self):
+        c = self.Commands.CODES
         self.commandParsers = {
-            self.Commands.MORPH_COLOUR: self._parseCmdMorphColour,
-            self.Commands.BLINK_COLOUR: self._parseCmdBlinkColour,
-            self.Commands.SET_COLOUR: self._parseCmdSetColour,
-            self.Commands.LOOP_SEQUENCE: self._parseCmdLoopSequence,
-            self.Commands.EXECUTE: self._parseCmdExecute,
-            self.Commands.GET_STATUS: self._parseCmdGetStatus,
-            self.Commands.RESET: self._parseCmdReset,
-            self.Commands.SAVE_NEXT: self._parseCmdSaveNext,
-            self.Commands.SAVE: self._parseCmdSave,
-            self.Commands.SET_TEMPO: self._parseCmdSetTempo
+            c[self.Commands.MORPH_COLOUR]: self._parseCmdMorphColour,
+            c[self.Commands.BLINK_COLOUR]: self._parseCmdBlinkColour,
+            c[self.Commands.SET_COLOUR]: self._parseCmdSetColour,
+            c[self.Commands.LOOP_SEQUENCE]: self._parseCmdLoopSequence,
+            c[self.Commands.EXECUTE]: self._parseCmdExecute,
+            c[self.Commands.GET_STATUS]: self._parseCmdGetStatus,
+            c[self.Commands.RESET]: self._parseCmdReset,
+            c[self.Commands.SAVE_NEXT]: self._parseCmdSaveNext,
+            c[self.Commands.SAVE]: self._parseCmdSave,
+            c[self.Commands.SET_TEMPO]: self._parseCmdSetTempo,
         }
         self.driver = AlienwareUSBDriver()
 
@@ -99,7 +113,7 @@ class AlienwareController:
         logging.debug("description: {}".format(self.pktToString(pkt)))
         self.driver.writePacket(pkt)
         response = self.driver.readPacket()
-        isReady = response[0] == self.Status.STATUS_READY
+        isReady = response[0] == self.Status.READY
         if isReady:
             logging.debug('Pinged, STATUS_READY')
         else:
@@ -162,7 +176,7 @@ class AlienwareController:
 
     @classmethod
     def makeGetStatusCmd(cls):
-        pkt = [0x02, cls.Commands.GET_STATUS, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.GET_STATUS], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -171,7 +185,7 @@ class AlienwareController:
     @classmethod
     def makeResetCmd(cls, resetCode):
         cls._validateResetCode(resetCode)
-        pkt = [0x02, cls.Commands.RESET, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.RESET], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -183,7 +197,7 @@ class AlienwareController:
         cls._validateZoneCode(zoneCode)
         cls._validateColor(colour1)
         cls._validateColor(colour2)
-        pkt = [0x02, cls.Commands.MORPH_COLOUR, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.MORPH_COLOUR], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -198,7 +212,7 @@ class AlienwareController:
     def makeBlinkColourCmd(cls, sequence, zoneCode, colour):
         cls._validateZoneCode(zoneCode)
         cls._validateColor(colour)
-        pkt = [0x02, cls.Commands.BLINK_COLOUR, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.BLINK_COLOUR], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -211,7 +225,7 @@ class AlienwareController:
     def makeSetColourCmd(cls, sequence, zoneCode, colour):
         cls._validateZoneCode(zoneCode)
         cls._validateColor(colour)
-        pkt = [0x02, cls.Commands.SET_COLOUR, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.SET_COLOUR], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -222,7 +236,7 @@ class AlienwareController:
 
     @classmethod
     def makeLoopSequenceCmd(cls):
-        pkt = [0x02, cls.Commands.LOOP_SEQUENCE, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.LOOP_SEQUENCE], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -231,7 +245,7 @@ class AlienwareController:
     @classmethod
     def makeSetTempoCmd(cls, tempo):
         cls._validateTempo(tempo)
-        pkt = [0x02, cls.Commands.SET_TEMPO, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.SET_TEMPO], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -240,7 +254,7 @@ class AlienwareController:
 
     @classmethod
     def makeExecuteCmd(cls):
-        pkt = [0x02, cls.Commands.EXECUTE, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.EXECUTE], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -249,7 +263,7 @@ class AlienwareController:
     @classmethod
     def makeSaveNextCmd(cls, powerStateCode):
         cls._validatePowerStateCode(powerStateCode)
-        pkt = [0x02, cls.Commands.SAVE_NEXT, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.SAVE_NEXT], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -258,7 +272,7 @@ class AlienwareController:
 
     @classmethod
     def makeSaveCmd(cls):
-        pkt = [0x02, cls.Commands.SAVE, 0,
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.SAVE], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
@@ -268,10 +282,10 @@ class AlienwareController:
     def getZoneName(self, pkt):
         zonesMask = (pkt[0] << 16) + (pkt[1] << 8) + pkt[2]
         zoneNames = []
-        for zoneName, zoneMask in self.Zones.CODES.items():
-            if zonesMask & zoneMask:
-                zoneNames.append(zoneName)
-                zonesMask &= ~zoneMask
+        for name, code in self.Zones.CODES.items():
+            if zonesMask & code:
+                zoneNames.append(name)
+                zonesMask &= ~code
         if zonesMask != 0:
             zoneNames.append("UNKNOWN_ZONE_CODE({})".format(hex(zonesMask)))
         return ', '.join(zoneNames)

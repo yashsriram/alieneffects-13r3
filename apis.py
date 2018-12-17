@@ -44,12 +44,6 @@ def setAlienwareLogoBacklight(effect, color1, speed=200, color2=(0, 0, 0)):
 def masterSet(zonesCode, effect, color1, speed=200, color2=(0, 0, 0)):
     controller = AC()
     try:
-        if zonesCode > 0xffff:
-            raise RuntimeError('Invalid zones code')
-
-        if speed < AC.MIN_TEMPO:
-            raise RuntimeError('Too much speed')
-
         if effect == EFFECT_SET_COLOR:
             commands = [
                 controller.makeSetColourCmd(1, zonesCode, color1),
