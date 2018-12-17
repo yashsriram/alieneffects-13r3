@@ -46,19 +46,19 @@ def masterSet(zonesCode, effect, color1, speed=200, color2=(0, 0, 0)):
     try:
         if effect == EFFECT_SET_COLOR:
             commands = [
-                controller.makeSetColourCmd(1, zonesCode, color1),
+                controller.makeSetColorCmd(1, zonesCode, color1),
                 controller.makeLoopSequenceCmd(),
             ]
         elif effect == EFFECT_BLINK_COLOR:
             commands = [
                 controller.makeSetTempoCmd(speed),
-                controller.makeBlinkColourCmd(1, zonesCode, color1),
+                controller.makeBlinkColorCmd(1, zonesCode, color1),
                 controller.makeLoopSequenceCmd(),
             ]
         elif effect == EFFECT_MORPH_COLOR:
             commands = [
                 controller.makeSetTempoCmd(speed),
-                controller.makeMorphColourCmd(1, zonesCode, color1, color2),
+                controller.makeMorphColorCmd(1, zonesCode, color1, color2),
                 controller.makeLoopSequenceCmd(),
             ]
         else:

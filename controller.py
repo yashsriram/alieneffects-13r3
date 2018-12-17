@@ -62,9 +62,9 @@ class AlienwareController:
         }
 
     class Commands:
-        MORPH_COLOUR = 'MORPH_COLOUR'
-        BLINK_COLOUR = 'BLINK_COLOUR'
-        SET_COLOUR = 'SET_COLOUR'
+        MORPH_COLOR = 'MORPH_COLOR'
+        BLINK_COLOR = 'BLINK_COLOR'
+        SET_COLOR = 'SET_COLOR'
         LOOP_SEQUENCE = 'LOOP_SEQUENCE'
         EXECUTE = 'EXECUTE'
         GET_STATUS = 'GET_STATUS'
@@ -74,9 +74,9 @@ class AlienwareController:
         SET_TEMPO = 'SET_TEMPO'
 
         CODES = {
-            MORPH_COLOUR: 0x1,
-            BLINK_COLOUR: 0x2,
-            SET_COLOUR: 0x3,
+            MORPH_COLOR: 0x1,
+            BLINK_COLOR: 0x2,
+            SET_COLOR: 0x3,
             LOOP_SEQUENCE: 0x4,
             EXECUTE: 0x5,
             GET_STATUS: 0x6,
@@ -94,9 +94,9 @@ class AlienwareController:
     def __init__(self):
         c = self.Commands.CODES
         self.commandParsers = {
-            c[self.Commands.MORPH_COLOUR]: self._parseCmdMorphColour,
-            c[self.Commands.BLINK_COLOUR]: self._parseCmdBlinkColour,
-            c[self.Commands.SET_COLOUR]: self._parseCmdSetColour,
+            c[self.Commands.MORPH_COLOR]: self._parseCmdMorphColor,
+            c[self.Commands.BLINK_COLOR]: self._parseCmdBlinkColor,
+            c[self.Commands.SET_COLOR]: self._parseCmdSetColor,
             c[self.Commands.LOOP_SEQUENCE]: self._parseCmdLoopSequence,
             c[self.Commands.EXECUTE]: self._parseCmdExecute,
             c[self.Commands.GET_STATUS]: self._parseCmdGetStatus,
@@ -149,8 +149,8 @@ class AlienwareController:
 
     # Make command packet methods
     @staticmethod
-    def _validateColor(colour):
-        for band in colour:
+    def _validateColor(color):
+        for band in color:
             if not (isinstance(band, int) and 0 <= band <= 255):
                 raise RuntimeError('Invalid color')
 
@@ -193,45 +193,45 @@ class AlienwareController:
         return pkt
 
     @classmethod
-    def makeMorphColourCmd(cls, sequence, zoneCode, colour1, colour2):
+    def makeMorphColorCmd(cls, sequence, zoneCode, color1, color2):
         cls._validateZoneCode(zoneCode)
-        cls._validateColor(colour1)
-        cls._validateColor(colour2)
-        pkt = [0x02, cls.Commands.CODES[cls.Commands.MORPH_COLOUR], 0,
+        cls._validateColor(color1)
+        cls._validateColor(color2)
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.MORPH_COLOR], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
         pkt[2] = sequence & 0xff
         pkt[3:6] = [(zoneCode & 0xff0000) >> 16, (zoneCode & 0xff00) >> 8, zoneCode & 0xff]
-        (red1, green1, blue1) = colour1
-        (red2, green2, blue2) = colour2
+        (red1, green1, blue1) = color1
+        (red2, green2, blue2) = color2
         pkt[6:12] = [red1, green1, blue1, red2, green2, blue2]
         return pkt
 
     @classmethod
-    def makeBlinkColourCmd(cls, sequence, zoneCode, colour):
+    def makeBlinkColorCmd(cls, sequence, zoneCode, color):
         cls._validateZoneCode(zoneCode)
-        cls._validateColor(colour)
-        pkt = [0x02, cls.Commands.CODES[cls.Commands.BLINK_COLOUR], 0,
+        cls._validateColor(color)
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.BLINK_COLOR], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
         pkt[2] = sequence & 0xff
         pkt[3:6] = [(zoneCode & 0xff0000) >> 16, (zoneCode & 0xff00) >> 8, zoneCode & 0xff]
-        pkt[6:9] = colour
+        pkt[6:9] = color
         return pkt
 
     @classmethod
-    def makeSetColourCmd(cls, sequence, zoneCode, colour):
+    def makeSetColorCmd(cls, sequence, zoneCode, color):
         cls._validateZoneCode(zoneCode)
-        cls._validateColor(colour)
-        pkt = [0x02, cls.Commands.CODES[cls.Commands.SET_COLOUR], 0,
+        cls._validateColor(color)
+        pkt = [0x02, cls.Commands.CODES[cls.Commands.SET_COLOR], 0,
                0, 0, 0,
                0, 0, 0,
                0, 0, 0]
         pkt[2] = sequence & 0xff
         pkt[3:6] = [(zoneCode & 0xff0000) >> 16, (zoneCode & 0xff00) >> 8, zoneCode & 0xff]
-        pkt[6:9] = colour
+        pkt[6:9] = color
         return pkt
 
     @classmethod
@@ -310,7 +310,7 @@ class AlienwareController:
             return self._parseCmdUnknown(pkt)
 
     @staticmethod
-    def _unpackColourPair(pkt):
+    def _unpackColorPair(pkt):
         red1 = pkt[0]
         green1 = pkt[1]
         blue1 = pkt[2]
@@ -320,38 +320,38 @@ class AlienwareController:
         return (red1, green1, blue1), (red2, green2, blue2)
 
     @staticmethod
-    def _unpackColour(pkt):
+    def _unpackColor(pkt):
         red = pkt[0]
         green = pkt[1]
         blue = pkt[2]
         return red, green, blue
 
-    def _parseCmdMorphColour(self, pkt):
-        (red1, green1, blue1), (red2, green2, blue2) = (self._unpackColourPair(pkt[6:12]))
+    def _parseCmdMorphColor(self, pkt):
+        (red1, green1, blue1), (red2, green2, blue2) = (self._unpackColorPair(pkt[6:12]))
         msg = [
             "\n\tZONE: {}".format(self.getZoneName(pkt[3:6])),
             "SEQUENCE: {}".format(pkt[2]),
-            "EFFECT: MORPH_COLOUR",
+            "EFFECT: MORPH_COLOR",
             "COLORS: ({},{},{})-({},{},{})".format(red1, green1, blue1, red2, green2, blue2),
         ]
         return '\n\t'.join(msg)
 
-    def _parseCmdBlinkColour(self, pkt):
-        (red, green, blue) = self._unpackColour(pkt[6:9])
+    def _parseCmdBlinkColor(self, pkt):
+        (red, green, blue) = self._unpackColor(pkt[6:9])
         msg = [
             "\n\tZONE: {}".format(self.getZoneName(pkt[3:6])),
             "SEQUENCE: {}".format(pkt[2]),
-            "EFFECT: BLINK_COLOUR",
+            "EFFECT: BLINK_COLOR",
             "COLOR: ({},{},{})".format(red, green, blue),
         ]
         return '\n\t'.join(msg)
 
-    def _parseCmdSetColour(self, pkt):
-        (red, green, blue) = self._unpackColour(pkt[6:9])
+    def _parseCmdSetColor(self, pkt):
+        (red, green, blue) = self._unpackColor(pkt[6:9])
         msg = [
             "\n\tZONE: {}".format(self.getZoneName(pkt[3:6])),
             "SEQUENCE: {}".format(pkt[2]),
-            "EFFECT: SET_COLOUR",
+            "EFFECT: SET_COLOR",
             "COLOR: ({},{},{})".format(red, green, blue),
         ]
         return '\n\t'.join(msg)
