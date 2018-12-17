@@ -1,0 +1,58 @@
+{
+  "TEMPO": 300,
+  "DURATION": 11000,
+  "ZONES": {
+    "LEFT_KEYBOARD": [
+      {
+        "EFFECT": "SET_COLOR",
+        "COLOR": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "EFFECT": "LOOP_SEQUENCE"
+      }
+    ],
+    "MIDDLE_LEFT_KEYBOARD": [
+      {
+        "EFFECT": "SET_COLOR",
+        "COLOR": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "EFFECT": "LOOP_SEQUENCE"
+      }
+    ],
+    "MIDDLE_RIGHT_KEYBOARD": [
+      {
+        "EFFECT": "SET_COLOR",
+        "COLOR": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "EFFECT": "LOOP_SEQUENCE"
+      }
+    ],
+    "RIGHT_KEYBOARD": [
+      {
+        "EFFECT": "SET_COLOR",
+        "COLOR": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "EFFECT": "LOOP_SEQUENCE"
+      }
+    ]
+  }
+}
