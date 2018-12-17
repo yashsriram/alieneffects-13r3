@@ -23,6 +23,13 @@ class AlienwareTheme:
         validatedZoneCodeSequenceMap = {}
 
         zones = t.get('ZONES', {})
+        expandedZones = {}
+        for zoneNamesConcatenated, value in zones.items():
+            zoneNames = zoneNamesConcatenated.split('|')
+            for zoneName in zoneNames:
+                expandedZones[zoneName] = value
+        zones = expandedZones
+
         for name, zoneCode in AC.Zones.CODES.items():
             sequence = zones.get(name, [])
             validatedSequence = []
