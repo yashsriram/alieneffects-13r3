@@ -1,6 +1,6 @@
 # Alien Effects for Alienware 13 R3
 
-## Introduction
+# Introduction
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
 
@@ -9,6 +9,18 @@ All lights can be controlled via USB protocol.
 For this specific device `vendor Id = 0x187c` and `product Id = 0x0529`
 
 Commands can be passed using control transfers of USB protocol.
+
+# Usage
+
+* python version 
+    * 3.6 is recommended
+    * 3.4 may not work
+* `python main.py` to open Textual User Interface
+    * First field is the themes directory
+    * After setting first field a list of files in the selected directory appears below
+    * Going through them, you can see the theme description (if file is a valid theme) on the right
+    * Enter to select a theme
+    * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
 
 # Control transfer: Write operation parameters
 
