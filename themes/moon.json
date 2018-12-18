@@ -1,0 +1,20 @@
+{
+  "DESCRIPTION": "set white color for all zones",
+  "TEMPO": 300,
+  "DURATION": 11000,
+  "ZONES": {
+    "ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": [
+      {
+        "EFFECT": "SET_COLOR",
+        "COLOR": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "EFFECT": "LOOP_SEQUENCE"
+      }
+    ]
+  }
+}
