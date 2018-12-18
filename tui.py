@@ -1,3 +1,5 @@
+import copy
+import curses
 import logging
 import os
 
@@ -6,20 +8,32 @@ import npyscreen as nps
 from theme import AlienwareTheme
 
 
+class BoxedTitleFileName(nps.BoxTitle):
+    _contained_widget = nps.FilenameCombo
+
+
+class SelectOneManyTimes(nps.SelectOne):
+    def handle_input(self, _input):
+        retvalue = super().handle_input(_input)
+        if _input == curses.ascii.NL:
+            self.parent.apply_theme_callback()
+        return retvalue
+
+
+class BoxedSelectOne(nps.BoxTitle):
+    _contained_widget = SelectOneManyTimes
+
+    def when_cursor_moved(self):
+        self.parent.browse_theme_callback(self.entry_widget.values[self.entry_widget.cursor_line])
+
+
 class ThemeDetailView(nps.GridColTitles):
     def custom_print_cell(self, actual_cell, cell_display_value):
         pass
 
 
-class BoxedTitleFileName(nps.BoxTitle):
-    _contained_widget = nps.FilenameCombo
-
-
-class BoxedSelectOne(nps.BoxTitle):
-    _contained_widget = nps.SelectOne
-
-    def when_cursor_moved(self):
-        self.parent.browse_theme_callback(self.entry_widget.values[self.entry_widget.cursor_line])
+class BoxedThemeDetailView(nps.BoxTitle):
+    _contained_widget = ThemeDetailView
 
 
 # noinspection PyAttributeOutsideInit
@@ -34,6 +48,7 @@ class ThemeMasterDetailView(nps.Form):
         usableY, usableX = self.useable_space()
         self.directoryField = self.add(BoxedTitleFileName,
                                        name='Themes directory',
+                                       rely=1,
                                        width=int(usableX * 0.4),
                                        value='/home/pandu/alienfx-13r3/themes',
                                        contained_widget_arguments={
@@ -48,19 +63,19 @@ class ThemeMasterDetailView(nps.Form):
                                       'value_changed_callback': self.apply_theme_callback,
                                       'check_cursor_move': True
                                   })
-        self.detailField = self.add(ThemeDetailView,
+        self.detailField = self.add(BoxedThemeDetailView,
                                     name='Theme detail',
                                     relx=int(usableX * 0.5),
                                     rely=1,
                                     values=[],
                                     editable=False)
         # todo remove
-        self.logField = self.add(nps.TitleFixedText,
+        self.logField = self.add(nps.FixedText,
                                  name='log',
                                  value='log will come here',
                                  editable=False,
-                                 relx=int(usableX * 0.5),
-                                 rely=1)
+                                 relx=int(usableX * 0.3),
+                                 rely=10)
 
     def activate(self):
         self.edit()
@@ -113,7 +128,7 @@ class ThemeMasterDetailView(nps.Form):
         self.detailField.display()
 
     def debug_log(self, msg):
-        self.logField.value = msg
+        self.logField.value = 'Log = {}'.format(msg)
         self.logField.display()
 
     @staticmethod
