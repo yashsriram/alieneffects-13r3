@@ -1,6 +1,10 @@
-- [ ] custom dir select widget
-- [ ] custom theme
+- [ ] Theme detail
 - [ ] Save and Save next commands
 - [ ] Power button control
+- [ ] custom dir select widget
 - [ ] Touch pad control while auto bios setting
+- [x] custom theme
+- [x] browse
+- [x] apply
+- [x] select one many times
 - [x] Theme file support

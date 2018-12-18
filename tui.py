@@ -1,4 +1,3 @@
-import copy
 import curses
 import logging
 import os
@@ -136,9 +135,30 @@ class ThemeMasterDetailView(nps.Form):
         exit(0)
 
 
+class CustomTheme(nps.npysThemes.TransparentThemeDarkText):
+    default_colors = {
+        'DEFAULT': 'YELLOW_ON_DEFAULT',
+        'FORMDEFAULT': 'WHITE_ON_DEFAULT',
+        'NO_EDIT': 'BLUE_ON_DEFAULT',
+        'STANDOUT': 'CYAN_ON_DEFAULT',
+        'CURSOR': 'WHITE_BLACK',
+        'CURSOR_INVERSE': 'BLACK_WHITE',
+        'LABEL': 'MAGENTA_ON_DEFAULT',
+        'LABELBOLD': 'BLACK_ON_DEFAULT',
+        'CONTROL': 'CYAN_ON_DEFAULT',
+        'WARNING': 'RED_BLACK',
+        'CRITICAL': 'BLACK_RED',
+        'GOOD': 'GREEN_BLACK',
+        'GOODHL': 'GREEN_BLACK',
+        'VERYGOOD': 'BLACK_GREEN',
+        'CAUTION': 'YELLOW_BLACK',
+        'CAUTIONHL': 'BLACK_YELLOW',
+    }
+
+
 class AlienwareTUI(nps.StandardApp):
     def onStart(self):
-        nps.setTheme(nps.Themes.ElegantTheme)
+        nps.setTheme(CustomTheme)
         self.addForm(
             'MAIN',
             ThemeMasterDetailView,
