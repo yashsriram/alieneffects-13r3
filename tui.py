@@ -28,7 +28,9 @@ class BoxedSelectOne(nps.BoxTitle):
 
 
 class ThemeDetailView(nps.MultiLine):
-    pass
+    def display_value(self, val):
+        # todo override this or do something else to improve theme detail view
+        return val
 
 
 class BoxedThemeDetailView(nps.BoxTitle):
@@ -104,13 +106,18 @@ class ThemeMasterDetailView(nps.Form):
             themeFilePath = os.path.join(directoryPath, themeFilename)
             theme = AlienwareTheme(themeFilePath)
             desciption, tempo, duration, zoneCodeSequenceMap = theme.validate()
-            self.set_detailed_field(desciption, tempo, duration, zoneCodeSequenceMap)
+            self.set_detailed_view(desciption, tempo, duration, zoneCodeSequenceMap)
         except Exception as e:
             logging.error(
                 'Exception occurred while opening theme "{}" in "{}" directory'.format(themeFilename, directoryPath))
             logging.error('Description {}'.format(e))
+            self.set_detailed_view_error('{} file doesn\'t seem to be a good theme file'.format(themeFilename))
 
-    def set_detailed_field(self, desciption, tempo, duration, sequences):
+    def set_detailed_view_error(self, message):
+        self.detailField.values = [message]
+        self.detailField.display()
+
+    def set_detailed_view(self, desciption, tempo, duration, sequences):
         sequenceDescriptions = []
         for zoneCode, sequence in sequences.items():
             zoneName = 'Unknown'
@@ -125,7 +132,7 @@ class ThemeMasterDetailView(nps.Form):
 
         self.detailField.values = ['Description = {}'.format(desciption),
                                    'Tempo = {}ms'.format(tempo),
-                                   'Duration f = {}ms'.format(duration),
+                                   'Duration = {}ms'.format(duration),
                                    'Sequences'] + sequenceDescriptions
         self.detailField.display()
 
