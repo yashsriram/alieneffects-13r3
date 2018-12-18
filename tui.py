@@ -1,9 +1,9 @@
+import logging
 import os
 
 import npyscreen as nps
 
 from theme import AlienwareTheme
-import logging
 
 
 class ThemeDetailView(nps.GridColTitles):
@@ -45,7 +45,7 @@ class ThemeMasterDetailView(nps.Form):
                                   width=int(usableX * 0.4),
                                   contained_widget_arguments={
                                       'scroll_exit': True,
-                                      'value_changed_callback': self.select_theme_callback,
+                                      'value_changed_callback': self.apply_theme_callback,
                                       'check_cursor_move': True
                                   })
         self.detailField = self.add(ThemeDetailView,
@@ -60,7 +60,7 @@ class ThemeMasterDetailView(nps.Form):
                                  value='log will come here',
                                  editable=False,
                                  relx=int(usableX * 0.5),
-                                 rely=10)
+                                 rely=1)
 
     def activate(self):
         self.edit()
@@ -78,9 +78,19 @@ class ThemeMasterDetailView(nps.Form):
         else:
             self.listField.values = ['** Not a directory **']
 
-    def select_theme_callback(self, **kwargs):
+    def apply_theme_callback(self, **kwargs):
         if len(self.listField.value) == 0:
             return
+        directoryPath = self.directoryField.value
+        themeFilename = self.listField.values[self.listField.value[0]]
+        try:
+            themeFilePath = os.path.join(directoryPath, themeFilename)
+            theme = AlienwareTheme(themeFilePath)
+            theme.apply()
+        except Exception as e:
+            logging.error(
+                'Exception occurred while applying theme "{}" in "{}" directory'.format(themeFilename, directoryPath))
+            logging.error('Description {}'.format(e))
 
     def browse_theme_callback(self, themeFilename):
         directoryPath = self.directoryField.value
