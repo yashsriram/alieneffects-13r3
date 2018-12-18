@@ -15,7 +15,7 @@ Commands can be passed using control transfers of USB protocol.
 * python version 
     * 3.6 is recommended
     * 3.4 may not work
-* `python main.py` to open Textual User Interface
+* `sudo python main.py` to open Textual User Interface
     * First field is the themes directory
     * After setting first field a list of files in the selected directory appears below
     * Going through them, you can see the theme description (if file is a valid theme) on the right
