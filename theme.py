@@ -18,6 +18,8 @@ class AlienwareTheme:
     def validate(self):
         t = self.theme
 
+        validatedDescription = t.get('DESCRIPTION', '')
+
         # No need to further validate type for these fields
         # That validation will be done in AlienwareController class
         validatedTempo = t.get('TEMPO', 200)
@@ -54,10 +56,10 @@ class AlienwareTheme:
         logging.debug('Validated tempo = {}ms, Validated duration = {}ms'.format(validatedTempo, validatedDuration))
         logging.debug('Validated zone sequence map: {}'.format(validatedZoneCodeSequenceMap))
 
-        return validatedTempo, validatedDuration, validatedZoneCodeSequenceMap
+        return validatedDescription, validatedTempo, validatedDuration, validatedZoneCodeSequenceMap
 
     def apply(self):
-        validatedTempo, validatedDuration, validatedZoneCodeSequenceMap = self.validate()
+        _, validatedTempo, validatedDuration, validatedZoneCodeSequenceMap = self.validate()
 
         ac = AC()
         try:

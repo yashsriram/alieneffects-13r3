@@ -4,6 +4,7 @@ import os
 
 import npyscreen as nps
 
+from controller import AlienwareController as AC
 from theme import AlienwareTheme
 
 
@@ -26,9 +27,8 @@ class BoxedSelectOne(nps.BoxTitle):
         self.parent.browse_theme_callback(self.entry_widget.values[self.entry_widget.cursor_line])
 
 
-class ThemeDetailView(nps.GridColTitles):
-    def custom_print_cell(self, actual_cell, cell_display_value):
-        pass
+class ThemeDetailView(nps.MultiLine):
+    pass
 
 
 class BoxedThemeDetailView(nps.BoxTitle):
@@ -66,15 +66,7 @@ class ThemeMasterDetailView(nps.Form):
                                     name='Theme detail',
                                     relx=int(usableX * 0.5),
                                     rely=1,
-                                    values=[],
-                                    editable=False)
-        # todo remove
-        self.logField = self.add(nps.FixedText,
-                                 name='log',
-                                 value='log will come here',
-                                 editable=False,
-                                 relx=int(usableX * 0.3),
-                                 rely=10)
+                                    values=[])
 
     def activate(self):
         self.edit()
@@ -111,24 +103,31 @@ class ThemeMasterDetailView(nps.Form):
         try:
             themeFilePath = os.path.join(directoryPath, themeFilename)
             theme = AlienwareTheme(themeFilePath)
-            validatedTempo, validatedDuration, validatedZoneCodeSequenceMap = theme.validate()
-            self.set_detailed_field(validatedTempo, validatedDuration, validatedZoneCodeSequenceMap)
+            desciption, tempo, duration, zoneCodeSequenceMap = theme.validate()
+            self.set_detailed_field(desciption, tempo, duration, zoneCodeSequenceMap)
         except Exception as e:
             logging.error(
                 'Exception occurred while opening theme "{}" in "{}" directory'.format(themeFilename, directoryPath))
             logging.error('Description {}'.format(e))
 
-    def set_detailed_field(self, tempo, duration, sequences):
-        self.detailField.values = [
-            ['Tempo = {}ms'.format(tempo)],
-            ['Duration = {}ms'.format(duration)],
-            ['Sequences = {}'.format(sequences)]
-        ]
-        self.detailField.display()
+    def set_detailed_field(self, desciption, tempo, duration, sequences):
+        sequenceDescriptions = []
+        for zoneCode, sequence in sequences.items():
+            zoneName = 'Unknown'
+            for name, code in AC.Zones.CODES.items():
+                if code == zoneCode:
+                    zoneName = name
+                    break
+            sequenceDescriptions.append(zoneName)
+            for effect in sequence:
+                sequenceDescriptions.append('\t\t\t\t\t\t\t\t{}'.format(effect['EFFECT']))
+            sequenceDescriptions.append('')
 
-    def debug_log(self, msg):
-        self.logField.value = 'Log = {}'.format(msg)
-        self.logField.display()
+        self.detailField.values = ['Description = {}'.format(desciption),
+                                   'Tempo = {}ms'.format(tempo),
+                                   'Duration f = {}ms'.format(duration),
+                                   'Sequences'] + sequenceDescriptions
+        self.detailField.display()
 
     @staticmethod
     def exit_application(keyCode):

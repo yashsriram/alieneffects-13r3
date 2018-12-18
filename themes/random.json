@@ -1,4 +1,5 @@
 {
+  "DESCRIPTION": "set same random color for all zones",
   "TEMPO": 300,
   "DURATION": 11000,
   "ZONES": {

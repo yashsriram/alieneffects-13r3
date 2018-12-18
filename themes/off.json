@@ -1,4 +1,5 @@
 {
+  "DESCRIPTION": "sets all zones to black color i.e. switches off all lights",
   "ZONES": {
     "POWER_BUTTON|ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": [
       {
