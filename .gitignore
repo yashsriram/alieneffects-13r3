@@ -2,3 +2,6 @@
 *~
 .idea
 *log
+dist
+*.egg-info
+build
