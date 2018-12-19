@@ -2,7 +2,7 @@ import json
 import logging
 from random import randint
 
-from controller import AlienwareController as AC
+from alieneffects.controller import AlienwareController as AC
 
 
 def generateRandomColor():

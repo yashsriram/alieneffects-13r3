@@ -4,8 +4,8 @@ import os
 
 import npyscreen as nps
 
-from controller import AlienwareController as AC
-from theme import AlienwareTheme
+from alieneffects.controller import AlienwareController as AC
+from alieneffects.theme import AlienwareTheme
 
 
 class BoxedTitleFileName(nps.BoxTitle):

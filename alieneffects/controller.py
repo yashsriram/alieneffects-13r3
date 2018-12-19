@@ -1,6 +1,6 @@
 import logging
 
-from usbdriver import AlienwareUSBDriver
+from alieneffects.usbdriver import AlienwareUSBDriver
 
 
 class AlienwareController:

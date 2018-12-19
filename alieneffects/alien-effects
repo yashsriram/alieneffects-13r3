@@ -1,8 +1,8 @@
-from theme import AlienwareTheme
+from alieneffects.theme import AlienwareTheme
 import logging
 import argparse
 
-from tui import AlienwareTUI
+from alieneffects.tui import AlienwareTUI
 
 logging.basicConfig(filename='debug.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
                     datefmt='%dth %H:%M:%S:')
