@@ -2,7 +2,7 @@
 
 [![GitHub license](https://img.shields.io/badge/license-GNU%20GPL%20V3-blue.svg)](https://github.com/Yashasvi-Sriram/alieneffects-13r3/blob/master/LICENSE)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg)]()
-[![PyPI](https://img.shields.io/badge/version-0.1.2-%23ff69b4.svg)](https://pypi.org/project/alienware-13r3-alien-effects/)
+[![PyPI](https://img.shields.io/badge/version-0.2.1-%23ff69b4.svg)](https://pypi.org/project/alienware-13r3-alien-effects/)
 
 `alieneffects-13r3` is an lightweight and highly customizable application to control LED backlights (alien effects) of Alienware 13 R3 laptop in linux.
 
@@ -19,7 +19,7 @@
     * Press enter to apply a theme
     * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
 
-![Alt TUI](https://github.com/Yashasvi-Sriram/alieneffects-13r3/blob/master/github/tui-screenshot.png)
+![Alt TUI](github/tui-screenshot.png)
 
 # Config file
 
@@ -88,7 +88,7 @@
 
 # Introduction - Reverse Engineering
 
-![Alt TUI](https://github.com/Yashasvi-Sriram/alieneffects-13r3/blob/master/github/alienware-13r3.jpg)
+![Alt TUI](github/alienware-13r3.jpg)
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
 
