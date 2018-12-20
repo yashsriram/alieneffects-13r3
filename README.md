@@ -15,8 +15,8 @@ Commands can be passed using control transfers of USB protocol.
 * python version 
     * 3.6 is recommended
     * 3.4 may not work
-* `sudo python setup.py install` to install `alien-effects-13r3`
-* `sudo alien-effects-13r3` to open a Textual User Interface where you can select themes
+* `sudo python setup.py install` to install `alieneffects-13r3`
+* `sudo alieneffects-13r3` to open a Textual User Interface where you can select themes
     * First field is the themes directory
     * After setting first field a list of files in the selected directory appears below
     * Going through them, you can see the theme description (if file is a valid theme) on the right
