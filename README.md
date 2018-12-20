@@ -79,7 +79,10 @@
   }
 }
 ```
+
 # Introduction - Reverse Engineering
+
+![Alt TUI](github/alienware-13r3.jpg)
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
 
@@ -88,6 +91,8 @@ All lights can be controlled via USB protocol.
 For this specific device `vendor Id = 0x187c` and `product Id = 0x0529`
 
 Commands can be passed using control transfers of USB protocol.
+
+Note that this application can only be used for Alienware 13 R3 model, for other models refer to [Alienfx](https://github.com/trackmastersteve/alienfx) by trackmastersteve
 
 # Control transfer: Write operation parameters
 
