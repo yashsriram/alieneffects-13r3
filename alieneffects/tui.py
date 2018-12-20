@@ -4,6 +4,7 @@ import os
 
 import npyscreen as nps
 
+from alieneffects.config import AlienwareConfig
 from alieneffects.controller import AlienwareController as AC
 from alieneffects.theme import AlienwareTheme
 
@@ -47,11 +48,13 @@ class ThemeMasterDetailView(nps.Form):
         self.add_handlers(new_handlers)
 
         usableY, usableX = self.useable_space()
+
+        config = AlienwareConfig()
         self.directoryField = self.add(BoxedTitleFileName,
                                        name='Themes directory',
                                        rely=1,
                                        width=int(usableX * 0.4),
-                                       value='/home/pandu/alienfx-13r3/themes',
+                                       value=config[config.Keys.THEMES_DIRECTORY],
                                        contained_widget_arguments={
                                            'value_changed_callback': self.change_dir_callback
                                        })
@@ -86,6 +89,19 @@ class ThemeMasterDetailView(nps.Form):
         else:
             self.listField.values = ['** Not a directory **']
 
+    def browse_theme_callback(self, themeFilename):
+        directoryPath = self.directoryField.value
+        try:
+            themeFilePath = os.path.join(directoryPath, themeFilename)
+            theme = AlienwareTheme(themeFilePath)
+            desciption, tempo, duration, zoneCodeSequenceMap = theme.validate()
+            self.show_theme_in_detailed_view(desciption, tempo, duration, zoneCodeSequenceMap)
+        except Exception as e:
+            logging.error(
+                'Exception occurred while opening theme "{}" in "{}" directory'.format(themeFilename, directoryPath))
+            logging.error('Description {}'.format(e))
+            self.show_error_in_detailed_view('{} file doesn\'t seem to be a good theme file'.format(themeFilename))
+
     def apply_theme_callback(self, **kwargs):
         if len(self.listField.value) == 0:
             return
@@ -99,25 +115,13 @@ class ThemeMasterDetailView(nps.Form):
             logging.error(
                 'Exception occurred while applying theme "{}" in "{}" directory'.format(themeFilename, directoryPath))
             logging.error('Description {}'.format(e))
+            self.show_error_in_detailed_view('{} file doesn\'t seem to be a good theme file'.format(themeFilename))
 
-    def browse_theme_callback(self, themeFilename):
-        directoryPath = self.directoryField.value
-        try:
-            themeFilePath = os.path.join(directoryPath, themeFilename)
-            theme = AlienwareTheme(themeFilePath)
-            desciption, tempo, duration, zoneCodeSequenceMap = theme.validate()
-            self.set_detailed_view(desciption, tempo, duration, zoneCodeSequenceMap)
-        except Exception as e:
-            logging.error(
-                'Exception occurred while opening theme "{}" in "{}" directory'.format(themeFilename, directoryPath))
-            logging.error('Description {}'.format(e))
-            self.set_detailed_view_error('{} file doesn\'t seem to be a good theme file'.format(themeFilename))
-
-    def set_detailed_view_error(self, message):
+    def show_error_in_detailed_view(self, message):
         self.detailField.values = [message]
         self.detailField.display()
 
-    def set_detailed_view(self, desciption, tempo, duration, sequences):
+    def show_theme_in_detailed_view(self, desciption, tempo, duration, sequences):
         sequenceDescriptions = []
         for zoneCode, sequence in sequences.items():
             zoneName = 'Unknown'
