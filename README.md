@@ -1,5 +1,7 @@
 # Alien Effects for Alienware 13 R3
 
+`alieneffects-13r3` is an lightweight and highly customizable application to control LED backlights (alien effects) of Alienware 13 R3 laptop in linux.
+
 # Installation and usage
 
 * python version 
