@@ -2,7 +2,7 @@
 
 [![GitHub license](https://img.shields.io/badge/license-GNU%20GPL%20V3-blue.svg)](https://github.com/Yashasvi-Sriram/alieneffects-13r3/blob/master/LICENSE)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg)]()
-[![PyPI](https://img.shields.io/badge/version-0.1.2-%23ff69b4.svg)](https://pypi.org/project/alienware-13r3-alien-effects/)
+[![PyPI](https://img.shields.io/badge/version-0.1.2-%23ff69b4.svg)](https://pypi.org/project/alieneffects-13r3/)
 
 `alieneffects-13r3` is an lightweight and highly customizable application to control LED backlights (alien effects) of Alienware 13 R3 laptop in linux.
 
@@ -11,7 +11,7 @@
 * python version 
     * 3.6 is recommended
     * 3.4 may not work
-* `sudo pip3 install alieneffects-13r3` to install
+* `sudo pip install alieneffects-13r3` to install
 * `sudo alieneffects-13r3` to open a Textual User Interface where you can select themes
     * First field is the themes directory
     * After setting it, a list of files in the that directory will appear below
