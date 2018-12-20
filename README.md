@@ -1,5 +1,63 @@
 # Alien Effects for Alienware 13 R3
 
+# Installation and usage
+
+* python version 
+    * 3.6 is recommended
+    * 3.4 may not work
+* `sudo pip3 install alieneffects-13r3` to install
+* `sudo alieneffects-13r3` to open a Textual User Interface where you can select themes
+    * First field is the themes directory
+    * After setting it, a list of files in the that directory will appear below
+    * By hovering through them, you can see the overview of each theme on the right panel
+    * Press enter to apply a theme
+    * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
+
+# Config file
+
+* Themes directory by default will be your home directory
+* You can write a config file `.alieneffects-13r3.json` to specify themes directory
+
+    \{
+      "THEMES_DIRECTORY": "/home/foo/bar/themes"
+    \}
+
+# Writing your own themes
+
+* The log will be written to `.alieneffects-13r3.log`
+* Theme files are also json files and can contain following keys
+    * DESCRIPTION - describes the theme
+    * TEMPO - the frequency of blinking and/or morphing
+    * DURATION - duration of each effect
+    * ZONES - sequences of each zone
+        * <ZONE-NAME> ex. POWER_BUTTON
+            * <SEQUENCE-OF-EFFECTS> ex.
+                * SET_COLOR, COLOR
+                * BLINK_COLOR, COLOR
+                * MORPH_COLOR, COLOR1, COLOR2
+                * LOOP_SEQUENCE
+* If an effect does not have a color, a random color will be choosen
+* The simplest theme is to switch off all lights
+
+    {
+      "DESCRIPTION": "sets all zones to black color i.e. switches off all lights",
+      "ZONES": {
+        "POWER_BUTTON|ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": \[
+          \{
+            "EFFECT": "SET_COLOR",
+            "COLOR": \[
+              0,
+              0,
+              0
+            \]
+          },
+          {
+            "EFFECT": "LOOP_SEQUENCE"
+          \}
+        \]
+      }
+    }
+
 # Introduction
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
@@ -9,19 +67,6 @@ All lights can be controlled via USB protocol.
 For this specific device `vendor Id = 0x187c` and `product Id = 0x0529`
 
 Commands can be passed using control transfers of USB protocol.
-
-# Usage
-
-* python version 
-    * 3.6 is recommended
-    * 3.4 may not work
-* `sudo python setup.py install` to install `alieneffects-13r3`
-* `sudo alieneffects-13r3` to open a Textual User Interface where you can select themes
-    * First field is the themes directory
-    * After setting first field a list of files in the selected directory appears below
-    * Going through them, you can see the theme description (if file is a valid theme) on the right
-    * Enter to select a theme
-    * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
 
 # Control transfer: Write operation parameters
 
