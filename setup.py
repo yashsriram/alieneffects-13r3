@@ -4,7 +4,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 setup(
-    name='alieneffects-13r3',
+    name='alienware-13r3-alien-effects',
     version='0.1.2',
     scripts=['alieneffects/alieneffects-13r3'],
     packages=['alieneffects'],
