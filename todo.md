@@ -1,8 +1,8 @@
-- [ ] Write about theme file format in readme
 - [ ] Save and Save next commands
 - [ ] Power button control
 - [ ] custom dir select widget
 - [ ] Touch pad control while auto bios setting
+- [x] Write about theme file format in readme
 - [x] read themes dir from config file
 - [x] Theme detail
 - [x] custom theme

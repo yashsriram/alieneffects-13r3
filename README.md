@@ -17,11 +17,11 @@
 
 * Themes directory by default will be your home directory
 * You can write a config file `.alieneffects-13r3.json` to specify themes directory
-
-    \{
+```
+    {
       "THEMES_DIRECTORY": "/home/foo/bar/themes"
-    \}
-
+    }
+```
 # Writing your own themes
 
 * The log will be written to `.alieneffects-13r3.log`
@@ -36,28 +36,47 @@
                 * BLINK_COLOR, COLOR
                 * MORPH_COLOR, COLOR1, COLOR2
                 * LOOP_SEQUENCE
+* Same sequence can be applied for multiple zones by delimiting zones with '|'
 * If an effect does not have a color, a random color will be choosen
 * The simplest theme is to switch off all lights
-
+```
     {
       "DESCRIPTION": "sets all zones to black color i.e. switches off all lights",
       "ZONES": {
-        "POWER_BUTTON|ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": \[
-          \{
+        "POWER_BUTTON|ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": [
+          {
             "EFFECT": "SET_COLOR",
-            "COLOR": \[
+            "COLOR": [
               0,
               0,
               0
-            \]
+            ]
           },
           {
             "EFFECT": "LOOP_SEQUENCE"
-          \}
-        \]
+          }
+        ]
       }
     }
-
+```
+* The random theme sets random color to all zones
+```
+{
+  "DESCRIPTION": "set same random color for all zones",
+  "TEMPO": 300,
+  "DURATION": 11000,
+  "ZONES": {
+    "ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": [
+      {
+        "EFFECT": "SET_COLOR"
+      },
+      {
+        "EFFECT": "LOOP_SEQUENCE"
+      }
+    ]
+  }
+}
+```
 # Introduction
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
