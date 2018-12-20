@@ -12,6 +12,7 @@
     * By hovering through them, you can see the overview of each theme on the right panel
     * Press enter to apply a theme
     * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
+
 ![Alt TUI](github/tui-screenshot.png)
 
 # Config file
