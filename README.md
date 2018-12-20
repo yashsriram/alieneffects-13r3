@@ -19,7 +19,7 @@
     * Press enter to apply a theme
     * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
 
-![Alt TUI](github/tui-screenshot.png)
+![Alt TUI](https://github.com/Yashasvi-Sriram/alieneffects-13r3/blob/master/github/tui-screenshot.png)
 
 # Config file
 
@@ -88,7 +88,7 @@
 
 # Introduction - Reverse Engineering
 
-![Alt TUI](github/alienware-13r3.jpg)
+![Alt TUI](https://github.com/Yashasvi-Sriram/alieneffects-13r3/blob/master/github/alienware-13r3.jpg)
 
 Alienware 13 R3 has 8 configurable light zones as listed in the table below.
 
