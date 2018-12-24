@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='alienware-13r3-alien-effects',
-    version='0.2.1',
+    version='0.2.2',
     scripts=['alieneffects/alieneffects-13r3'],
     packages=['alieneffects'],
     author='Yashasvi Sriram',

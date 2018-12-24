@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 
-from alieneffects.theme import AlienwareTheme
-import logging
 import argparse
 
+from alieneffects.theme import AlienwareTheme
 from alieneffects.tui import AlienwareTUI
-from os import path
-
-home = path.expanduser('~')
-logfile = path.join(home, '.alieneffects-13r3.log')
-logging.basicConfig(filename=logfile, level=logging.ERROR, format='%(asctime)s %(levelname)-8s %(message)s',
-                    datefmt='%dth %H:%M:%S:')
 
 # argument parsing
 parser = argparse.ArgumentParser()

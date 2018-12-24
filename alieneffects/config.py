@@ -1,12 +1,13 @@
 import json
 import os
+from alieneffects.constants import CONFIG_FILE_DEFAULT_PATH
 
 
 class AlienwareConfig:
     class Keys:
         THEMES_DIRECTORY = 'THEMES_DIRECTORY'
 
-    def __init__(self, path=os.path.join(os.path.expanduser('~' + os.getenv('SUDO_USER')), '.alieneffects-13r3.json')):
+    def __init__(self, path=CONFIG_FILE_DEFAULT_PATH):
         self.config = {
             self.Keys.THEMES_DIRECTORY: os.path.expanduser('~'),
         }
