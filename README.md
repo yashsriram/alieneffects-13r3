@@ -11,7 +11,10 @@
 * python version 
     * 3.6 is recommended
     * 3.4 may not work
-* `sudo pip install alienware-13r3-alien-effects` to install
+    * 2 is strongly discouraged
+* `sudo pip3 install alienware-13r3-alien-effects` to install
+* To install from source, clone this repo and `sudo python3 setup.py install`
+* `sudo alieneffects-13r3 --THEME_FILE <path-to-theme-file>` to apply a theme
 * `sudo alieneffects-13r3` to open a Textual User Interface where you can select themes
     * First field is the themes directory
     * After setting it, a list of files in the that directory will appear below
