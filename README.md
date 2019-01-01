@@ -57,16 +57,12 @@
         "POWER_BUTTON|ALIENWARE_LOGO|ALIEN_HEAD|LEFT_KEYBOARD|TOUCH_PAD|MIDDLE_LEFT_KEYBOARD|MIDDLE_RIGHT_KEYBOARD|RIGHT_KEYBOARD": [
           {
             "EFFECT": "SET_COLOR",
-            "COLOR": [
-              0,
-              0,
-              0
-            ]
+            "COLOR": [0, 0, 0]
           },
           {
             "EFFECT": "LOOP_SEQUENCE"
           }
-        ]
+      ]
       }
     }
 ```
