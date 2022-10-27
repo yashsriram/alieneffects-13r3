@@ -17,8 +17,6 @@
 * `sudo alieneffects-13r3 --THEME_FILE <path-to-theme-file>` to apply a theme
 * Some themes have stochasticity (randomness) in them, so applying same theme multiple times can lead to different themes
 
-![Alt TUI](github/tui-screenshot.png)
-
 # Config file
 
 * Themes directory by default will be your home directory
