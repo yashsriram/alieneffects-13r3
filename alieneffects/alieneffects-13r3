@@ -3,7 +3,6 @@
 import argparse
 
 from alieneffects.theme import AlienwareTheme
-from alieneffects.tui import AlienwareTUI
 
 # argument parsing
 parser = argparse.ArgumentParser()
@@ -14,5 +13,4 @@ if args.THEME_FILE:
     theme = AlienwareTheme(args.THEME_FILE)
     theme.apply()
 else:
-    # default behaviour is to open TUI
-    AlienwareTUI().run()
+    print('Need a theme file')
