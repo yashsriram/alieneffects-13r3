@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import sys
+import logging
 
 from alieneffects.theme import AlienwareTheme
 
@@ -10,6 +12,7 @@ parser.add_argument('--THEME_FILE')
 args = parser.parse_args()
 
 if args.THEME_FILE:
+    logging.basicConfig(level=logging.DEBUG, stream = sys.stdout,)
     theme = AlienwareTheme(args.THEME_FILE)
     theme.apply()
 else:
