@@ -5,10 +5,10 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='alienware-13r3-alien-effects',
-    version='0.2.2',
-    scripts=['alieneffects/alieneffects-13r3'],
+    version='1.0.0',
+    scripts=['main.py'],
     packages=['alieneffects'],
-    author='Yashasvi Sriram',
+    author='Yashasvi Sriram Patkuri',
     author_email='yash.3997@gmail.com',
     url='https://github.com/Yashasvi-Sriram/alieneffects-13r3',
     description='Backlight LED controller for alienware 13 R3',
