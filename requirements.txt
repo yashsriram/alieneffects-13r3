@@ -1,2 +1,2 @@
 pyusb==1.0.2
-setuptools==40.0.0
+setuptools==65.5.1
